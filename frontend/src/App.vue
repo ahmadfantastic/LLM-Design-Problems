@@ -1,0 +1,11 @@
+<template>
+  <nav class="navbar navbar-expand-lg navbar-dark bg-primary mb-4">
+    <div class="container-fluid">
+      <a class="navbar-brand" href="#">LLM Exam App</a>
+    </div>
+  </nav>
+
+  <div class="container py-4">
+    <RouterView />
+  </div>
+</template>

@@ -1,0 +1,7 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+.input { @apply border rounded-lg p-2 w-full; }
+.textarea { @apply border rounded-lg p-2 w-full min-h-[6rem]; }
+.btn { @apply bg-blue-600 text-white rounded-lg px-4 py-2 hover:bg-blue-700; }

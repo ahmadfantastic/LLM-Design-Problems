@@ -1,0 +1,22 @@
+{
+  "name": "llm-exam-frontend",
+  "version": "1.0.0",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build"
+  },
+  "dependencies": {
+    "@popperjs/core": "^2.11.8",
+    "axios": "^1.6.2",
+    "bootstrap": "^5.3.5",
+    "bootstrap-icons": "^1.11.3",
+    "chart.js": "^4.4.9",
+    "markdown-it": "^14.1.0",
+    "vue": "^3.4.15",
+    "vue-router": "^4.3.0"
+  },
+  "devDependencies": {
+    "@vitejs/plugin-vue": "^5.2.3",
+    "tailwindcss": "^3.4.0"
+  }
+}

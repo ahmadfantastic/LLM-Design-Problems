@@ -1,23 +1,48 @@
 <template>
-  <form @submit.prevent="submit" class="mb-6 grid gap-4 lg:grid-cols-3">
-    <input v-model="name" placeholder="Project name" class="input" required />
-    <textarea v-model="objectives" placeholder="Learning objectives (one per line)" class="textarea" required></textarea>
-    <textarea v-model="task" placeholder="Task description" class="textarea" required></textarea>
-    <button class="btn col-span-full w-max">Create</button>
+  <form @submit.prevent="submit" class="row g-4">
+    <div class="col-12">
+      <input v-model="name" class="form-control" placeholder="Project name" required />
+    </div>
+
+    <div class="col-12">
+      <textarea v-model="objectives" class="form-control" rows="3" placeholder="Learning objectives" required></textarea>
+    </div>
+
+    <div class="col-12">
+      <textarea v-model="task" class="form-control" rows="3" placeholder="Task description" required></textarea>
+    </div>
+
+    <div class="col-12">
+      <input v-model="technologies" class="form-control" placeholder="Key technologies" required />
+    </div>
+
+    <div class="col-12 text-end">
+      <button class="btn btn-success">
+        <i class="bi bi-plus-circle me-1"></i>Create Project
+      </button>
+    </div>
   </form>
 </template>
+
 <script setup>
 import { ref } from 'vue'
 import axios from 'axios'
+
 const emit = defineEmits(['created'])
-const name = ref(''), objectives = ref(''), task = ref('')
+
+const name = ref('')
+const objectives = ref('')
+const task = ref('')
+const technologies = ref('')
+
 const submit = async () => {
   await axios.post('/api/projects', {
     name: name.value,
     learning_objectives: objectives.value,
-    task_description: task.value
+    task_description: task.value,
+    technologies: technologies.value
   })
-  name.value = objectives.value = task.value = ''
+  name.value = objectives.value = task.value = technologies.value = ''
   emit('created')
 }
 </script>
