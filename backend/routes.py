@@ -47,16 +47,18 @@ def get_project(pid):
 def create_question(pid):
     project = Project.query.get_or_404(pid)
     target_objs: str = request.json.get("selected_objectives", "")
-    prompt, q_text = generate_question(project.learning_objectives,
-                                       project.task_description,
-                                       project.technologies,
-                                       target_objs)
-    q = Question(project_id=pid,
-                 selected_objectives=target_objs,
-                 prompt=prompt,
-                 generated_question=q_text)
-    db.session.add(q)
-    db.session.commit()
+    count: int = request.json.get("count", 1)
+    for i in range(count):
+        prompt, q_text = generate_question(project.learning_objectives,
+                                        project.task_description,
+                                        project.technologies,
+                                        target_objs)
+        q = Question(project_id=pid,
+                    selected_objectives=target_objs,
+                    prompt=prompt,
+                    generated_question=q_text)
+        db.session.add(q)
+        db.session.commit()
     return jsonify(q_to_dict(q, full=True)), 201
 
 

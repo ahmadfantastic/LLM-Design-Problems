@@ -1,7 +1,7 @@
 <template>
   <nav class="navbar navbar-expand-lg navbar-dark bg-primary mb-4">
     <div class="container-fluid">
-      <a class="navbar-brand" href="#">LLM Exam App</a>
+      <a class="navbar-brand" href="#">LLM Exam Design Problem App</a>
     </div>
   </nav>
 

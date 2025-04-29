@@ -7,17 +7,17 @@
       <i class="bi bi-arrow-left me-1"></i>Back to project
     </RouterLink>
 
-    <h1 class="h4 my-3">Generated Question #{{ question.id }}</h1>
+    <h1 class="h4 my-3">Generated Design Problem #{{ question.id }}</h1>
 
     <!-- Generated Question -->
     <div class="mb-4">
-      <h2 class="h6">Generated Question</h2>
+      <h2 class="h6">Generated Design Problem</h2>
       <div v-html="renderedOutput" class="border rounded p-3 bg-light"></div>
     </div>
 
     <!-- Evaluation -->
     <div v-if="!isEvaluated" class="card p-3 mb-4">
-      <h2 class="h6 mb-3">Evaluate this question</h2>
+      <h2 class="h6 mb-3">Evaluate this design problem</h2>
       <EvaluationForm :question="question" @submitted="fetchQuestion" />
     </div>
 

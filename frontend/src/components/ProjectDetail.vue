@@ -63,48 +63,12 @@
     </template>
 
     <!-- Create Question -->
-    <h2 class="h5 mt-4">Generate Question</h2>
+    <h2 class="h5 mt-4">Generate Design Problem</h2>
     <QuestionForm :project="project" @created="fetchProject" />
 
     <!-- Question list -->
-    <h2 class="h5 mt-4">Questions</h2>
-    <ul class="list-group mb-4">
-      <li
-        v-for="q in project.questions"
-        :key="q.id"
-        class="list-group-item d-flex justify-content-between align-items-center"
-      >
-        <div>
-          <RouterLink
-            :to="`/questions/${q.id}`"
-            class="text-decoration-none me-2"
-          >
-            Question #{{ q.id }}
-          </RouterLink>
-
-          <span
-            class="badge"
-            :class="isEvaluated(q) ? 'bg-success' : 'bg-warning text-dark'"
-          >
-            {{ isEvaluated(q) ? 'Evaluated' : 'Pending Evaluation' }}
-          </span>
-        </div>
-
-        <div class="d-flex align-items-center gap-2">
-          <small class="text-muted">
-            {{ new Date(q.created_at).toLocaleString() }}
-          </small>
-
-          <!-- NEW: Delete button -->
-          <button
-            class="btn btn-sm btn-outline-danger"
-            @click="confirmDelete(q.id)"
-          >
-            <i class="bi bi-trash"></i>
-          </button>
-        </div>
-      </li>
-    </ul>
+    <h2 class="h5 mt-4">Design Problems</h2>
+    <QuestionList :questions="project.questions" @deleted="fetchProject"/>
 
     <!-- Stats panel -->
     <StatsPanel :questions="project.questions" />
@@ -117,6 +81,7 @@ import axios from 'axios'
 import { useRoute } from 'vue-router'
 import QuestionForm from './QuestionForm.vue'
 import StatsPanel from './StatsPanel.vue'
+import QuestionList from './QuestionList.vue'
 
 const route = useRoute()
 const project = ref({ questions: [] })
@@ -140,17 +105,6 @@ const saveEdit = async () => {
   await axios.patch(`/api/projects/${project.value.id}`, editForm.value)
   editing.value = false
   fetchProject()
-}
-
-const confirmDelete = async (qid) => {
-  if (confirm('Are you sure you want to delete this question?')) {
-    await axios.delete(`/api/questions/${qid}`)
-    await fetchProject()
-  }
-}
-
-const isEvaluated = (q) => {
-  return q.alignment != null && q.complexity != null && q.clarity != null && q.feasibility != null
 }
 
 onMounted(fetchProject)

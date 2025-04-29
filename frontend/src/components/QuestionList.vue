@@ -1,0 +1,89 @@
+<template>
+  <ul class="list-group mb-4">
+    <li
+      v-for="q in questions"
+      :key="q.id"
+      class="list-group-item"
+    >
+      <div class="d-flex justify-content-between align-items-center">
+        <div>
+          <RouterLink
+            :to="`/questions/${q.id}`"
+            class="text-decoration-none me-2">
+            Design Problem #{{ q.id }}
+          </RouterLink>
+
+          <span
+            class="badge"
+            :class="isEvaluated(q) ? 'bg-success' : 'bg-warning text-dark'">
+            {{ isEvaluated(q) ? 'Evaluated' : 'Pending Evaluation' }}
+          </span>
+        </div>
+
+        <div class="d-flex align-items-center gap-2">
+          <small class="text-muted">
+            {{ new Date(q.created_at).toLocaleString() }}
+          </small>
+
+          <button
+            class="btn btn-sm btn-outline-secondary"
+            @click="toggleExpand(q.id)"
+          >
+            <i
+              :class="expandedIds.includes(q.id)
+                ? 'bi bi-chevron-up'
+                : 'bi bi-chevron-down'"
+            ></i>
+          </button>
+
+          <button
+            class="btn btn-sm btn-outline-danger"
+            @click="confirmDelete(q.id)"
+          >
+            <i class="bi bi-trash"></i>
+          </button>
+        </div>
+      </div>
+
+      <!-- Expanded problem display -->
+      <div v-if="expandedIds.includes(q.id)" class="mt-2">
+        <div class="mb-0" v-html="renderMarkdown(q.generated_question)"></div>
+      </div>
+    </li>
+  </ul>
+</template>
+
+
+<script setup>
+import { ref } from 'vue'
+import axios from 'axios'
+import MarkdownIt from 'markdown-it'
+
+const props = defineProps({ questions: Array })
+const emit = defineEmits(['deleted'])
+const md = new MarkdownIt()
+
+const expandedIds = ref([])
+
+const toggleExpand = (id) => {
+  if (expandedIds.value.includes(id)) {
+    expandedIds.value = expandedIds.value.filter(qid => qid !== id)
+  } else {
+    expandedIds.value.push(id)
+  }
+}
+
+// Markdown rendering
+const renderMarkdown = (text) => md.render(text || '')
+
+const confirmDelete = async (qid) => {
+  if (confirm('Are you sure you want to delete this question?')) {
+    await axios.delete(`/api/questions/${qid}`)
+    emit('deleted')
+  }
+}
+
+const isEvaluated = (q) => {
+  return q.alignment != null && q.complexity != null && q.clarity != null && q.feasibility != null
+}
+</script>
