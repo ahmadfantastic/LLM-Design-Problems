@@ -10,13 +10,23 @@
       </label>
       <select
         :id="criteria.key"
-        v-model="scores[criteria.key]"
+        v-model="evaluation_data[criteria.key]"
         class="form-select"
         required
       >
         <option disabled value="">—</option>
         <option v-for="n in 5" :key="n" :value="n">{{ n }}</option>
       </select>
+    </div>
+    <div class="col-12">
+      <label for="evaluation_note" class="form-label">Evaluation Notes</label>
+      <textarea
+        id="evaluation_note"
+        v-model="evaluation_data.evaluation_note"
+        class="form-control"
+        rows="3"
+        placeholder="Add your evaluation notes here..."
+      ></textarea>
     </div>
     <div class="col-12">
       <button class="btn btn-primary">
@@ -33,14 +43,15 @@ import { evaluationCriteria } from '../utils/constants.js'
 
 const props = defineProps({
   question: Object,
-  initialScores: {
+  initialEvaluation: {
     type: Object,
     default: () => ({
       scenario: '',
       alignment: '',
       complexity: '',
       clarity: '',
-      feasibility: ''
+      feasibility: '',
+      evaluation_note: ''
     })
   }
 })
@@ -48,18 +59,19 @@ const props = defineProps({
 const emit = defineEmits(['submitted'])
 
 
-const scores = reactive({ ...props.initialScores })
+const evaluation_data = reactive({ ...props.initialEvaluation})
 
 watchEffect(() => {
-  if (props.initialScores) {
+  if (props.initialEvaluation) {
     evaluationCriteria.forEach(criteria => {
-      scores[criteria.key] = props.initialScores[criteria.key] ?? ''
+      evaluation_data[criteria.key] = props.initialEvaluation[criteria.key] ?? ''
     })
+    evaluation_data['evaluation_note'] = props.initialEvaluation['evaluation_note'] ?? ''
   }
 })
 
 const submit = async () => {
-  await axios.post(`/api/questions/${props.question.id}/evaluate`, scores)
+  await axios.post(`/api/questions/${props.question.id}/evaluate`, evaluation_data)
   emit('submitted')
 }
 </script>

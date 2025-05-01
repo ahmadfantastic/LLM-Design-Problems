@@ -1,7 +1,7 @@
 from flask import Blueprint, request, jsonify, abort
 from database import db
 from models import Project, Question
-from openai_client import generate_question
+from openai_client import generate_question, generate_answer
 
 api = Blueprint("api", __name__)
 
@@ -47,13 +47,20 @@ def get_project(pid):
 def create_question(pid):
     project = Project.query.get_or_404(pid)
     target_objs: str = request.json.get("selected_objectives", "")
+    type: str = request.json.get("type", "open")
     count: int = request.json.get("count", 1)
+
+    VALID_TYPES = {"open", "multiple_choice"}
+    if type not in VALID_TYPES:
+        return jsonify({"error": f"Invalid question type: '{type}'"}), 400
+
     for i in range(count):
         prompt, q_text = generate_question(project.learning_objectives,
                                         project.task_description,
                                         project.technologies,
-                                        target_objs)
+                                        target_objs, type)
         q = Question(project_id=pid,
+                    type=type,
                     selected_objectives=target_objs,
                     prompt=prompt,
                     generated_question=q_text)
@@ -63,10 +70,10 @@ def create_question(pid):
 
 
 @api.route("/questions/<int:qid>")
-
 def get_question(qid):
     q = Question.query.get_or_404(qid)
     return jsonify(q_to_dict(q, full=True))
+
 
 @api.route("/questions/<int:qid>", methods=["DELETE"])
 def delete_question(qid):
@@ -75,16 +82,25 @@ def delete_question(qid):
     db.session.commit()
     return '', 204  # No content
 
-@api.route("/questions/<int:qid>/evaluate", methods=["POST"])
 
+@api.route("/questions/<int:qid>/evaluate", methods=["POST"])
 def evaluate_question(qid):
-    q = Question.query.get_or_404(qid)
+    question = Question.query.get_or_404(qid)
     data = request.json or {}
     for k in ["scenario", "alignment", "complexity", "clarity", "feasibility"]:
         if k in data:
-            setattr(q, k, int(data[k]))
+            setattr(question, k, int(data[k]))
+    question.evaluation_note = data["evaluation_note"]
     db.session.commit()
-    return jsonify(q_to_dict(q, full=True))
+    return jsonify(q_to_dict(question, full=True))
+
+
+@api.route("/questions/<int:qid>/answer", methods=["POST"])
+def answer_question(qid):
+    question = Question.query.get_or_404(qid)
+    question.sample_answer = generate_answer(question.generated_question, question.type)
+    db.session.commit()
+    return jsonify(q_to_dict(question, full=True))
 
 # ---- Helpers ----
 
@@ -95,6 +111,7 @@ def p_to_dict(p: Project, with_questions=False):
         "learning_objectives": p.learning_objectives,
         "task_description": p.task_description,
         "technologies": p.technologies,
+        "question_count": len(p.questions),
         "created_at": p.created_at.isoformat(),
     }
     if with_questions:
@@ -105,13 +122,16 @@ def q_to_dict(q: Question, full=False):
     d = {
         "id": q.id,
         "project_id": q.project_id,
+        "type": q.type,
         "selected_objectives": q.selected_objectives,
         "generated_question": q.generated_question,
+        "sample_answer": q.sample_answer,
         "scenario": q.scenario,
         "alignment": q.alignment,
         "complexity": q.complexity,
         "clarity": q.clarity,
         "feasibility": q.feasibility,
+        "evaluation_note": q.evaluation_note,
         "created_at": q.created_at.isoformat(),
     }
     if full:

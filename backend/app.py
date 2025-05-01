@@ -14,7 +14,6 @@ def create_app():
 
     app.register_blueprint(api, url_prefix="/api")
 
-    # Serve SPA
     @app.route("/")
     def index():
         return app.send_static_file("index.html")

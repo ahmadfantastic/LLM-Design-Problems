@@ -7,6 +7,7 @@
     >
       <div class="d-flex justify-content-between align-items-center">
         <div>
+          <i :class="typeIcon[q.type] || 'bi bi-question-circle'"></i>
           <RouterLink
             :to="`/questions/${q.id}`"
             class="text-decoration-none me-2">
@@ -85,5 +86,11 @@ const confirmDelete = async (qid) => {
 
 const isEvaluated = (q) => {
   return q.alignment != null && q.complexity != null && q.clarity != null && q.feasibility != null
+}
+
+const typeIcon = {
+  open: 'bi bi-chat-text',
+  multiple_choice: 'bi bi-list-ul',
+  true_false: 'bi bi-check2-square',
 }
 </script>

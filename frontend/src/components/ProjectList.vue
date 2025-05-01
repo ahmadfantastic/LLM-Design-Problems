@@ -33,6 +33,10 @@
                 <p class="card-text small text-muted">
                   Created {{ new Date(p.created_at).toLocaleDateString() }}
                 </p>
+                <p class="card-text small">
+                  <i class="bi bi-question-circle me-1"></i>
+                  {{ p.question_count }} question{{ p.question_count !== 1 ? 's' : '' }}
+                </p>
               </div>
             </div>
           </div>

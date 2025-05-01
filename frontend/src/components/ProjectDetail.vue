@@ -68,7 +68,14 @@
 
     <!-- Question list -->
     <h2 class="h5 mt-4">Design Problems</h2>
-    <QuestionList :questions="project.questions" @deleted="fetchProject"/>
+    <div v-if="project.questions.length === 0" class="text-muted fst-italic mb-3">
+      No design problems generated yet.
+    </div>
+    <QuestionList
+      v-else
+      :questions="project.questions"
+      @deleted="fetchProject"
+    />
 
     <!-- Stats panel -->
     <StatsPanel :questions="project.questions" />

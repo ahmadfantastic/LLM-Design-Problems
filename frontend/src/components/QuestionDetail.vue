@@ -7,12 +7,14 @@
       <i class="bi bi-arrow-left me-1"></i>Back to project
     </RouterLink>
 
-    <h1 class="h4 my-3">Generated Design Problem #{{ question.id }}</h1>
+    <h1 class="h4 my-3">
+      <i :class="typeIcon[question.type] || 'bi bi-question-circle'"></i>
+      Generated Design Problem #{{ question.id }}
+    </h1>
 
     <!-- Generated Question -->
     <div class="mb-4">
-      <h2 class="h6">Generated Design Problem</h2>
-      <div v-html="renderedOutput" class="border rounded p-3 bg-light"></div>
+      <div v-html="renderedQuestion" class="border rounded p-3 bg-light"></div>
     </div>
 
     <!-- Evaluation -->
@@ -25,7 +27,7 @@
       <div class="d-flex justify-content-between align-items-center mb-3">
         <h2 class="h6 mb-0">Evaluation</h2>
         <button
-          class="btn btn-outline-secondary btn-sm"
+          class="btn btn-outline-primary btn-sm"
           @click="editingEvaluation = true"
         >
           <i class="bi bi-pencil-square me-1"></i>Edit Evaluation
@@ -35,23 +37,52 @@
       <div v-if="editingEvaluation">
         <EvaluationForm
           :question="question"
-          :initial-scores="{
+          :initial-evaluation="{
             scenario: question.scenario,
             alignment: question.alignment,
             complexity: question.complexity,
             clarity: question.clarity,
-            feasibility: question.feasibility
+            feasibility: question.feasibility,
+            evaluation_note: question.evaluation_note
           }"
           @submitted="handleEvaluationUpdate"
         />
       </div>
 
-      <div v-else class="row text-center">
+      <div v-else class="row">
         <div v-for="criteria in evaluationCriteria" :key="criteria.key" class="col-6 col-md-3 col-lg-2 mb-2">
           <div class="fw-bold fs-4">{{ question[criteria.key] }}</div>
           <small class="text-muted text-capitalize">{{ criteria.name }}</small>
         </div>
+        <div class="col-12 mt-3">
+          <h6>Evaluation Notes</h6>
+          <div
+            class="border rounded p-3 bg-light"
+            style="white-space: pre-wrap; overflow-wrap: break-word;"
+          >
+            {{ question.evaluation_note }}
+          </div>
+        </div>
       </div>
+    </div>
+
+    <!-- Generated Answer -->
+    <div class="card p-3 mb-4">
+      <div class="d-flex justify-content-between align-items-center mb-3">
+        <h2 class="h6 mb-0">Generated Answer</h2>
+        <button
+          v-if="!question.sample_answer && !loadingAnswer"
+          class="btn btn-outline-primary btn-sm"
+          @click="generateAnswer"
+        >
+          <i class="bi bi-lightbulb me-1"></i>Generate Answer
+        </button>
+        <div v-if="loadingAnswer" class="spinner-border text-primary spinner-border-sm" role="status">
+          <span class="visually-hidden">Loading...</span>
+        </div>
+      </div>
+
+      <div v-if="question.sample_answer" class="border rounded p-3 bg-light" v-html="renderedAnswer"></div>
     </div>
 
     <!-- Prompt -->
@@ -78,8 +109,11 @@ import { evaluationCriteria } from '../utils/constants.js'
 const md = new MarkdownIt()
 const route = useRoute()
 const question = ref({})
-const renderedOutput = ref('')
+const renderedQuestion = ref('')
+const renderedAnswer = ref('')
+
 const editingEvaluation = ref(false)
+const loadingAnswer = ref(false)
 
 
 const isEvaluated = computed(() =>
@@ -92,13 +126,31 @@ const isEvaluated = computed(() =>
 const fetchQuestion = async () => {
   const { data } = await axios.get(`/api/questions/${route.params.id}`)
   question.value = data
-  renderedOutput.value = md.render(question.value.generated_question || '')
+  renderedQuestion.value = md.render(question.value.generated_question || '')
+  renderedAnswer.value = md.render(question.value.sample_answer || '')
   editingEvaluation.value = false // exit edit mode when refreshing
 }
 
 const handleEvaluationUpdate = () => {
   fetchQuestion()
   editingEvaluation.value = false
+}
+
+
+const generateAnswer = async () => {
+  loadingAnswer.value = true
+  try {
+    await axios.post(`/api/questions/${route.params.id}/answer`)
+    await fetchQuestion()
+  } finally {
+    loadingAnswer.value = false
+  }
+}
+
+const typeIcon = {
+  open: 'bi bi-chat-text',
+  multiple_choice: 'bi bi-list-ul',
+  true_false: 'bi bi-check2-square',
 }
 
 onMounted(fetchQuestion)
