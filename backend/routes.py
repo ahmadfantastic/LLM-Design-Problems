@@ -89,7 +89,10 @@ def evaluate_question(qid):
     data = request.json or {}
     for k in ["scenario", "alignment", "complexity", "clarity", "feasibility"]:
         if k in data:
-            setattr(question, k, int(data[k]))
+            score = int(data[k])
+            if score < 0 or score > 2:
+                return jsonify({"error": f"Invalid score for {k}: {score}"}), 400
+            setattr(question, k, score)
     question.evaluation_note = data["evaluation_note"]
     db.session.commit()
     return jsonify(q_to_dict(question, full=True))

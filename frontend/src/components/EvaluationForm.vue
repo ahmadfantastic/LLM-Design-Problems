@@ -15,7 +15,9 @@
         required
       >
         <option disabled value="">—</option>
-        <option v-for="n in 5" :key="n" :value="n">{{ n }}</option>
+        <option :key="2" :value="2" :title="criteria['score_2']">Yes</option>
+        <option :key="1" :value="1" :title="criteria['score_1']">May be</option>
+        <option :key="0" :value="0" :title="criteria['score_0']">No</option>
       </select>
     </div>
     <div class="col-12">

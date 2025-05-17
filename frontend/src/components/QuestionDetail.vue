@@ -51,7 +51,7 @@
 
       <div v-else class="row">
         <div v-for="criteria in evaluationCriteria" :key="criteria.key" class="col-6 col-md-3 col-lg-2 mb-2">
-          <div class="fw-bold fs-4">{{ question[criteria.key] }}</div>
+          <div class="fw-bold fs-4" :title="criteria['score_'+question[criteria.key]]">{{ answerMap[question[criteria.key]] }}</div>
           <small class="text-muted text-capitalize">{{ criteria.name }}</small>
         </div>
         <div class="col-12 mt-3">
@@ -152,6 +152,9 @@ const typeIcon = {
   multiple_choice: 'bi bi-list-ul',
   true_false: 'bi bi-check2-square',
 }
+
+const answerMap = ['No', 'Maybe', 'Yes', 'Definitely', 'Not sure']
+
 
 onMounted(fetchQuestion)
 </script>

@@ -62,7 +62,7 @@ const render = async () => {
       scales: {
         y: {
           suggestedMin: 0,
-          suggestedMax: 5,
+          suggestedMax: 2 ,
           ticks: { stepSize: 1 }
         }
       }

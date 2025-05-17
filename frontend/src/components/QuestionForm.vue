@@ -8,10 +8,10 @@
 
      <!-- Wrap dropdown and count input together -->
      <div class="d-flex flex-column">
-      <select v-model="type" class="form-select" required style="width: 160px">
+      <select v-model="type" class="form-select" required style="width: 120px">
         <option disabled value="">Type</option>
         <option value="open">Open</option>
-        <option value="multiple_choice">Multiple Choice</option>
+        <option value="multiple_choice">Multi Choice</option>
         <option value="true_false">True/False</option>
       </select>
 
@@ -23,7 +23,7 @@
         default="1"
         placeholder="Count"
         class="form-control"
-        style="width: 160px"/>
+        style="width: 120px"/>
     </div>
 
     <button class="btn btn-success" :disabled="loading">

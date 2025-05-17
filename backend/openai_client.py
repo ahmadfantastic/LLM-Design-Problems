@@ -15,8 +15,11 @@ def generate_question(full_objs: str, task_desc: str, technologies: str, target_
     )
     response = client.chat.completions.create(
         model="gpt-4o",
-        messages=[{"role": "user", "content": prompt}],
-        temperature=0.7,
+        messages=[{
+            "role": "user", 
+            "content": prompt
+            }],
+        temperature=0,
     )
     return prompt, response.choices[0].message.content.strip()
 
@@ -35,7 +38,7 @@ def generate_answer(question: str, type: str):
     response = client.chat.completions.create(
         model="gpt-4o",
         messages=[{"role": "user", "content": prompt}],
-        temperature=0.7,
+        temperature=0,
     )
     return response.choices[0].message.content.strip()
 
