@@ -18,11 +18,12 @@
       <input
         v-model="count"
         type="number"
-        max="50"
+        max="10"
         min="1"
         default="1"
         placeholder="Count"
         class="form-control"
+        value="1"
         style="width: 120px"/>
     </div>
 

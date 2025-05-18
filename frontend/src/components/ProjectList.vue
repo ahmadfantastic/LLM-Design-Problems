@@ -3,7 +3,7 @@
     <div class="row g-4">
       
       <!-- LEFT COLUMN: Project Form -->
-      <div class="col-12 col-md-4">
+      <div class="col-12 col-md-5">
         <div class="card shadow-sm">
           <div class="card-header bg-primary text-white">
             <h5 class="mb-0">Create New Project</h5>
@@ -15,7 +15,7 @@
       </div>
 
       <!-- RIGHT COLUMN: Project List -->
-      <div class="col-12 col-md-8">
+      <div class="col-12 col-md-7">
         <h2 class="h5 mb-3">Existing Projects</h2>
 
         <div v-if="projects.length === 0" class="text-center py-5">

@@ -48,11 +48,20 @@ def create_question(pid):
     project = Project.query.get_or_404(pid)
     target_objs: str = request.json.get("selected_objectives", "")
     type: str = request.json.get("type", "open")
-    count: int = request.json.get("count", 1)
+    count: int = request.json.get("count")
 
     VALID_TYPES = {"open", "multiple_choice"}
     if type not in VALID_TYPES:
         return jsonify({"error": f"Invalid question type: '{type}'"}), 400
+    count = request.json.get("count")
+    if count is None:
+        return jsonify({"error": "Missing 'count' in request"}), 400
+    try:
+        count = int(count)
+    except (ValueError, TypeError):
+        return jsonify({"error": f"Invalid count: '{count}' (must be an integer)"}), 400
+    if count < 1 or count > 10:
+        return jsonify({"error": f"Invalid count: '{count}' (must be between 1 and 10)"}), 400
 
     for i in range(count):
         prompt, q_text = generate_question(project.learning_objectives,
