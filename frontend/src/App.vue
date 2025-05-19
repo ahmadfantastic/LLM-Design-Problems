@@ -9,3 +9,9 @@
     <RouterView />
   </div>
 </template>
+
+<style lang="css">
+p {
+  white-space: pre-line;
+}
+</style>
