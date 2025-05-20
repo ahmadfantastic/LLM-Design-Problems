@@ -20,11 +20,10 @@
         type="number"
         max="10"
         min="1"
-        default="1"
         placeholder="Count"
         class="form-control"
-        value="1"
-        style="width: 120px"/>
+        style="width: 120px"
+        required/>
     </div>
 
     <button class="btn btn-success" :disabled="loading">
@@ -42,8 +41,8 @@ import axios from 'axios'
 const props = defineProps({ project: Object })
 const emit = defineEmits(['created'])
 const target = ref('')
-const type = ref('')
-const count = ref('')
+const type = ref('open')
+const count = ref(1)
 
 const loading = ref(false)
 

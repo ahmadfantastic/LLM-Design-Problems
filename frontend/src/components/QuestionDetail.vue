@@ -16,6 +16,15 @@
     <div class="mb-4">
       <div v-html="renderedQuestion" class="border rounded p-3 bg-light"></div>
     </div>
+    
+    <div class="mb-4">
+      
+    </div>
+
+    <!-- Target Objectives -->
+    <h2 class="h6 mb-3">Target Learning Objective</h2>
+    <div class="border rounded p-3 bg-light mb-3">{{ question.selected_objectives }}</div>
+    
 
     <!-- Evaluation -->
     <div v-if="!isEvaluated" class="card p-3 mb-4">
@@ -153,7 +162,7 @@ const typeIcon = {
   true_false: 'bi bi-check2-square',
 }
 
-const answerMap = ['No', 'Maybe', 'Yes', 'Definitely', 'Not sure']
+const answerMap = ['No', 'Maybe', 'Yes']
 
 
 onMounted(fetchQuestion)

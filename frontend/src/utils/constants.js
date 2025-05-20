@@ -22,7 +22,7 @@ export const evaluationCriteria = [
       name: 'Cognitive Complexity',
       description: 'Does the design problem test higher-order thinking skills (Bloom\'s Taxonomy)?',
       score_2: 'Predominant demand is Analyze, Evaluate, Create (higher-order thinking). Students must justify their reasoning, compare alternatives, or design a novel solution.',
-      score_1: 'Contains explicit hints or significant demands involving remembering or understanding (lower-order thinking).',
+      score_1: 'Significant demands involving remembering or understanding (lower-order thinking).',
       score_0: 'Primarily lower-order (remember, list, define) with no substantive analysis or synthesis required.',
       weight: 3
     },

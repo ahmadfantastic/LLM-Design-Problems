@@ -8,7 +8,6 @@ Format Requirements:
 - The question should have four options with only one correct answer
 - Students should be able to answer in 30 minutes.
 - Ensure to adequately explain concepts in the domain problem that are potentially unfamiliar to students.
-- Do not provide the answer or any hints in the question
 
 Generate a distinct question that aligns with these requirements based on the following course and project details:
 

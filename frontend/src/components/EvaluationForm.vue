@@ -26,7 +26,7 @@
         id="evaluation_note"
         v-model="evaluation_data.evaluation_note"
         class="form-control"
-        rows="3"
+        rows="5"
         placeholder="Add your evaluation notes here..."
       ></textarea>
     </div>
@@ -53,7 +53,7 @@ const props = defineProps({
       complexity: '',
       clarity: '',
       feasibility: '',
-      evaluation_note: ''
+      evaluation_note: "Scenario: \nAlignment: \nComplexity: \nClarity: \nFeasibility:"
     })
   }
 })
