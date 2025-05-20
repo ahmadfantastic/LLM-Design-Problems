@@ -35,7 +35,7 @@
                 </p>
                 <p class="card-text small">
                   <i class="bi bi-question-circle me-1"></i>
-                  {{ p.question_count }} question{{ p.question_count !== 1 ? 's' : '' }}
+                  {{ p.problem_count }} problem{{ p.problem_count !== 1 ? 's' : '' }}
                 </p>
               </div>
             </div>

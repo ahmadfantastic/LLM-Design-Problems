@@ -50,9 +50,9 @@ const submit = async () => {
   loading.value = true
   try {
     await axios.post(
-      `/api/projects/${props.project.id}/questions`,
+      `/api/projects/${props.project.id}/problems`,
       { 
-        selected_objectives: target.value,
+        target_objectives: target.value,
         type: type.value,
         count: count.value
       }

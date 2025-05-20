@@ -1,20 +1,20 @@
 <template>
   <div>
     <RouterLink
-      :to="`/projects/${question.project_id}`"
+      :to="`/projects/${problem.project_id}`"
       class="text-decoration-none"
     >
       <i class="bi bi-arrow-left me-1"></i>Back to project
     </RouterLink>
 
     <h1 class="h4 my-3">
-      <i :class="typeIcon[question.type] || 'bi bi-question-circle'"></i>
-      Generated Design Problem #{{ question.id }}
+      <i :class="typeIcon[problem.type] || 'bi bi-question-circle'"></i>
+      Generated Design Problem #{{ problem.id }}
     </h1>
 
-    <!-- Generated Question -->
+    <!-- Generated Problem -->
     <div class="mb-4">
-      <div v-html="renderedQuestion" class="border rounded p-3 bg-light"></div>
+      <div v-html="renderedProblem" class="border rounded p-3 bg-light"></div>
     </div>
     
     <div class="mb-4">
@@ -23,13 +23,13 @@
 
     <!-- Target Objectives -->
     <h2 class="h6 mb-3">Target Learning Objective</h2>
-    <div class="border rounded p-3 bg-light mb-3">{{ question.selected_objectives }}</div>
+    <div class="border rounded p-3 bg-light mb-3">{{ problem.target_objectives }}</div>
     
 
     <!-- Evaluation -->
     <div v-if="!isEvaluated" class="card p-3 mb-4">
       <h2 class="h6 mb-3">Evaluate this design problem</h2>
-      <EvaluationForm :question="question" @submitted="fetchQuestion" />
+      <EvaluationForm :problem="problem" @submitted="fetchProblem" />
     </div>
 
     <div v-else class="card p-3 mb-4">
@@ -45,14 +45,14 @@
 
       <div v-if="editingEvaluation">
         <EvaluationForm
-          :question="question"
+          :problem="problem"
           :initial-evaluation="{
-            scenario: question.scenario,
-            alignment: question.alignment,
-            complexity: question.complexity,
-            clarity: question.clarity,
-            feasibility: question.feasibility,
-            evaluation_note: question.evaluation_note
+            scenario: problem.scenario,
+            alignment: problem.alignment,
+            complexity: problem.complexity,
+            clarity: problem.clarity,
+            feasibility: problem.feasibility,
+            evaluation_note: problem.evaluation_note
           }"
           @submitted="handleEvaluationUpdate"
         />
@@ -60,7 +60,7 @@
 
       <div v-else class="row">
         <div v-for="criteria in evaluationCriteria" :key="criteria.key" class="col-6 col-md-3 col-lg-2 mb-2">
-          <div class="fw-bold fs-4" :title="criteria['score_'+question[criteria.key]]">{{ answerMap[question[criteria.key]] }}</div>
+          <div class="fw-bold fs-4" :title="criteria['score_'+problem[criteria.key]]">{{ answerMap[problem[criteria.key]] }}</div>
           <small class="text-muted text-capitalize">{{ criteria.name }}</small>
         </div>
         <div class="col-12 mt-3">
@@ -69,7 +69,7 @@
             class="border rounded p-3 bg-light"
             style="white-space: pre-wrap; overflow-wrap: break-word;"
           >
-            {{ question.evaluation_note }}
+            {{ problem.evaluation_note }}
           </div>
         </div>
       </div>
@@ -80,7 +80,7 @@
       <div class="d-flex justify-content-between align-items-center mb-3">
         <h2 class="h6 mb-0">Generated Answer</h2>
         <button
-          v-if="!question.sample_answer && !loadingAnswer"
+          v-if="!problem.sample_answer && !loadingAnswer"
           class="btn btn-outline-primary btn-sm"
           @click="generateAnswer"
         >
@@ -91,7 +91,7 @@
         </div>
       </div>
 
-      <div v-if="question.sample_answer" class="border rounded p-3 bg-light" v-html="renderedAnswer"></div>
+      <div v-if="problem.sample_answer" class="border rounded p-3 bg-light" v-html="renderedAnswer"></div>
     </div>
 
     <!-- Prompt -->
@@ -101,7 +101,7 @@
         class="border rounded p-3 bg-light"
         style="white-space: pre-wrap; overflow-wrap: break-word;"
       >
-        {{ question.prompt }}
+        {{ problem.prompt }}
       </div>
     </div>
   </div>
@@ -117,8 +117,8 @@ import { evaluationCriteria } from '../utils/constants.js'
 
 const md = new MarkdownIt()
 const route = useRoute()
-const question = ref({})
-const renderedQuestion = ref('')
+const problem = ref({})
+const renderedProblem = ref('')
 const renderedAnswer = ref('')
 
 const editingEvaluation = ref(false)
@@ -127,21 +127,21 @@ const loadingAnswer = ref(false)
 
 const isEvaluated = computed(() =>
   evaluationCriteria.every(
-    criteria => question.value[criteria.key] !== null 
-    && question.value[criteria.key] !== undefined
+    criteria => problem.value[criteria.key] !== null 
+    && problem.value[criteria.key] !== undefined
   )
 )
 
-const fetchQuestion = async () => {
-  const { data } = await axios.get(`/api/questions/${route.params.id}`)
-  question.value = data
-  renderedQuestion.value = md.render(question.value.generated_question || '')
-  renderedAnswer.value = md.render(question.value.sample_answer || '')
+const fetchProblem = async () => {
+  const { data } = await axios.get(`/api/problems/${route.params.id}`)
+  problem.value = data
+  renderedProblem.value = md.render(problem.value.generated_problem || '')
+  renderedAnswer.value = md.render(problem.value.sample_answer || '')
   editingEvaluation.value = false // exit edit mode when refreshing
 }
 
 const handleEvaluationUpdate = () => {
-  fetchQuestion()
+  fetchProblem()
   editingEvaluation.value = false
 }
 
@@ -149,8 +149,8 @@ const handleEvaluationUpdate = () => {
 const generateAnswer = async () => {
   loadingAnswer.value = true
   try {
-    await axios.post(`/api/questions/${route.params.id}/answer`)
-    await fetchQuestion()
+    await axios.post(`/api/problems/${route.params.id}/answer`)
+    await fetchProblem()
   } finally {
     loadingAnswer.value = false
   }
@@ -165,5 +165,5 @@ const typeIcon = {
 const answerMap = ['No', 'Maybe', 'Yes']
 
 
-onMounted(fetchQuestion)
+onMounted(fetchProblem)
 </script>

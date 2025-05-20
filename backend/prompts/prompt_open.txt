@@ -2,14 +2,14 @@ You are an expert computing education assistant.
 You will generate a short exam design problem for students to solve.
 
 Format Requirements:
-- The question should begin with a short, realistic scenario.
-- The question should test higher-order thinking skills
-- The question should be in a different context from the project.
+- The problem should begin with a short, realistic scenario.
+- The problem should test higher-order thinking skills
+- The problem should be in a different context from the project.
 - The expected answer length is a few sentences to one paragraph.
 - Students should be able to answer in 30 minutes.
 - Ensure to adequately explain concepts in the domain problem that are potentially unfamiliar to students.
 
-Generate a distinct question that aligns with these requirements based on the following course and project details:
+Generate a distinct problem that aligns with these requirements based on the following course and project details:
 
 1. Course Overview & Learning Objectives:  
 {full_learning_objectives}
@@ -20,9 +20,9 @@ Generate a distinct question that aligns with these requirements based on the fo
 3. Key Technologies, Techniques, and Tools used in the Project:
 {technologies} 
 
-4. Target Learning Objectives of the Question
+4. Target Learning Objectives of the Problem
 {target_objectives}
 
 Output format:
 Scenario: <Brief context description>
-Question: <Specific design question posed to students>
+Problem: <Specific design problem posed to students>

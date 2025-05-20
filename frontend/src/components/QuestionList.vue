@@ -1,7 +1,7 @@
 <template>
   <ul class="list-group mb-4">
     <li
-      v-for="q in questions"
+      v-for="q in problems"
       :key="q.id"
       class="list-group-item"
     >
@@ -9,7 +9,7 @@
         <div>
           <i :class="typeIcon[q.type] || 'bi bi-question-circle'"></i>
           <RouterLink
-            :to="`/questions/${q.id}`"
+            :to="`/problems/${q.id}`"
             class="text-decoration-none me-2">
             Design Problem #{{ q.id }}
           </RouterLink>
@@ -48,7 +48,7 @@
 
       <!-- Expanded problem display -->
       <div v-if="expandedIds.includes(q.id)" class="mt-2">
-        <div class="mb-0" v-html="renderMarkdown(q.generated_question)"></div>
+        <div class="mb-0" v-html="renderMarkdown(q.generated_problem)"></div>
       </div>
     </li>
   </ul>
@@ -60,7 +60,7 @@ import { ref } from 'vue'
 import axios from 'axios'
 import MarkdownIt from 'markdown-it'
 
-const props = defineProps({ questions: Array })
+const props = defineProps({ problems: Array })
 const emit = defineEmits(['deleted'])
 const md = new MarkdownIt()
 
@@ -78,8 +78,8 @@ const toggleExpand = (id) => {
 const renderMarkdown = (text) => md.render(text || '')
 
 const confirmDelete = async (qid) => {
-  if (confirm('Are you sure you want to delete this question?')) {
-    await axios.delete(`/api/questions/${qid}`)
+  if (confirm('Are you sure you want to delete this problem?')) {
+    await axios.delete(`/api/problems/${qid}`)
     emit('deleted')
   }
 }

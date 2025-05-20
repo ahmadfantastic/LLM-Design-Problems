@@ -4,7 +4,7 @@ from config import Config
 
 client = OpenAI(api_key=Config.OPENAI_API_KEY)
 
-def generate_question(full_objs: str, task_desc: str, technologies: str, target_objs: str, type: str):
+def generate_problem(full_objs: str, task_desc: str, technologies: str, target_objs: str, type: str):
     prompt_tempalate = load_prompt_template(type)
     
     prompt = prompt_tempalate.format(
@@ -24,16 +24,16 @@ def generate_question(full_objs: str, task_desc: str, technologies: str, target_
     return prompt, response.choices[0].message.content.strip()
 
 
-def generate_answer(question: str, type: str):    
+def generate_answer(problem: str, type: str):    
     if type == "open":
-        template = """ In 2-4 sentences answer this problem: {question}"""
+        template = """ In 2-4 sentences answer this problem: {problem}"""
     elif type == "multiple_choice":
-        template = """ Briefly, what is the answer to this problem: {question}"""
+        template = """ Briefly, what is the answer to this problem: {problem}"""
     else:
-        template = """ In few sentences answer this problem: {question}"""
+        template = """ In few sentences answer this problem: {problem}"""
 
     prompt = template.format(
-        question=question,
+        problem=problem,
     )
     response = client.chat.completions.create(
         model="gpt-4o",

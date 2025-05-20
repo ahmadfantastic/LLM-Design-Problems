@@ -1,7 +1,7 @@
 from flask import Blueprint, request, jsonify, abort
 from database import db
-from models import Project, Question
-from openai_client import generate_question, generate_answer
+from models import Project, Problem
+from openai_client import generate_problem, generate_answer
 
 api = Blueprint("api", __name__)
 
@@ -39,20 +39,20 @@ def update_project(pid):
 @api.route("/projects/<int:pid>")
 def get_project(pid):
     p = Project.query.get_or_404(pid)
-    return jsonify(p_to_dict(p, with_questions=True))
+    return jsonify(p_to_dict(p, with_problems=True))
 
 
-# ---- Questions ----
-@api.route("/projects/<int:pid>/questions", methods=["POST"])
-def create_question(pid):
+# ---- Problems ----
+@api.route("/projects/<int:pid>/problems", methods=["POST"])
+def create_problem(pid):
     project = Project.query.get_or_404(pid)
-    target_objs: str = request.json.get("selected_objectives", "")
+    target_objs: str = request.json.get("target_objectives", "")
     type: str = request.json.get("type", "open")
     count: int = request.json.get("count")
 
     VALID_TYPES = {"open", "multiple_choice"}
     if type not in VALID_TYPES:
-        return jsonify({"error": f"Invalid question type: '{type}'"}), 400
+        return jsonify({"error": f"Invalid problem type: '{type}'"}), 400
     count = request.json.get("count")
     if count is None:
         return jsonify({"error": "Missing 'count' in request"}), 400
@@ -64,79 +64,79 @@ def create_question(pid):
         return jsonify({"error": f"Invalid count: '{count}' (must be between 1 and 10)"}), 400
 
     for i in range(count):
-        prompt, q_text = generate_question(project.learning_objectives,
+        prompt, q_text = generate_problem(project.learning_objectives,
                                         project.task_description,
                                         project.technologies,
                                         target_objs, type)
-        q = Question(project_id=pid,
+        q = Problem(project_id=pid,
                     type=type,
-                    selected_objectives=target_objs,
+                    target_objectives=target_objs,
                     prompt=prompt,
-                    generated_question=q_text)
+                    generated_problem=q_text)
         db.session.add(q)
         db.session.commit()
     return jsonify(q_to_dict(q, full=True)), 201
 
 
-@api.route("/questions/<int:qid>")
-def get_question(qid):
-    q = Question.query.get_or_404(qid)
+@api.route("/problems/<int:qid>")
+def get_problem(qid):
+    q = Problem.query.get_or_404(qid)
     return jsonify(q_to_dict(q, full=True))
 
 
-@api.route("/questions/<int:qid>", methods=["DELETE"])
-def delete_question(qid):
-    q = Question.query.get_or_404(qid)
+@api.route("/problems/<int:qid>", methods=["DELETE"])
+def delete_problem(qid):
+    q = Problem.query.get_or_404(qid)
     db.session.delete(q)
     db.session.commit()
     return '', 204  # No content
 
 
-@api.route("/questions/<int:qid>/evaluate", methods=["POST"])
-def evaluate_question(qid):
-    question = Question.query.get_or_404(qid)
+@api.route("/problems/<int:qid>/evaluate", methods=["POST"])
+def evaluate_problem(qid):
+    problem = Problem.query.get_or_404(qid)
     data = request.json or {}
     for k in ["scenario", "alignment", "complexity", "clarity", "feasibility"]:
         if k in data:
             score = int(data[k])
             if score < 0 or score > 2:
                 return jsonify({"error": f"Invalid score for {k}: {score}"}), 400
-            setattr(question, k, score)
-    question.evaluation_note = data["evaluation_note"]
+            setattr(problem, k, score)
+    problem.evaluation_note = data["evaluation_note"]
     db.session.commit()
-    return jsonify(q_to_dict(question, full=True))
+    return jsonify(q_to_dict(problem, full=True))
 
 
-@api.route("/questions/<int:qid>/answer", methods=["POST"])
-def answer_question(qid):
-    question = Question.query.get_or_404(qid)
-    question.sample_answer = generate_answer(question.generated_question, question.type)
+@api.route("/problems/<int:qid>/answer", methods=["POST"])
+def answer_problem(qid):
+    problem = Problem.query.get_or_404(qid)
+    problem.sample_answer = generate_answer(problem.generated_problem, problem.type)
     db.session.commit()
-    return jsonify(q_to_dict(question, full=True))
+    return jsonify(q_to_dict(problem, full=True))
 
 # ---- Helpers ----
 
-def p_to_dict(p: Project, with_questions=False):
+def p_to_dict(p: Project, with_problems=False):
     d = {
         "id": p.id,
         "name": p.name,
         "learning_objectives": p.learning_objectives,
         "task_description": p.task_description,
         "technologies": p.technologies,
-        "question_count": len(p.questions),
+        "problem_count": len(p.problems),
         "created_at": p.created_at.isoformat(),
     }
-    if with_questions:
-        d["questions"] = [q_to_dict(q) for q in p.questions]
+    if with_problems:
+        d["problems"] = [q_to_dict(q) for q in p.problems]
     return d
 
-def q_to_dict(q: Question, full=False):
+def q_to_dict(q: Problem, full=False):
     d = {
         "id": q.id,
         "project_id": q.project_id,
         "type": q.type,
-        "selected_objectives": q.selected_objectives,
-        "generated_question": q.generated_question,
+        "target_objectives": q.target_objectives,
+        "generated_problem": q.generated_problem,
         "sample_answer": q.sample_answer,
         "scenario": q.scenario,
         "alignment": q.alignment,

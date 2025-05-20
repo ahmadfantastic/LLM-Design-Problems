@@ -78,22 +78,22 @@
       </template>
       
       <!-- Stats panel -->
-      <StatsPanel :questions="project.questions" />
+      <StatsPanel :problems="project.problems" />
     </div>
 
     <div class="col-md-7">
-      <!-- Create Question -->
+      <!-- Create Problem -->
       <h2 class="h5 mt-4">Generate Design Problem</h2>
-      <QuestionForm :project="project" @created="fetchProject" />
+      <ProblemForm :project="project" @created="fetchProject" />
 
-      <!-- Question list -->
+      <!-- Problem list -->
       <h2 class="h5 mt-4">Design Problems</h2>
-      <div v-if="project.questions.length === 0" class="text-muted fst-italic mb-3">
+      <div v-if="project.problems.length === 0" class="text-muted fst-italic mb-3">
         No design problems generated yet.
       </div>
-      <QuestionList
+      <ProblemList
         v-else
-        :questions="project.questions"
+        :problems="project.problems"
         @deleted="fetchProject"
       />
     </div>
@@ -104,14 +104,14 @@
 import { ref, onMounted } from 'vue'
 import axios from 'axios'
 import { useRoute } from 'vue-router'
-import QuestionForm from './QuestionForm.vue'
+import ProblemForm from './ProblemForm.vue'
 import StatsPanel from './StatsPanel.vue'
-import QuestionList from './QuestionList.vue'
+import ProblemList from './ProblemList.vue'
 
 const route = useRoute()
 const showFullObjectives = ref(false)
 const showFullTask = ref(false)
-const project = ref({ questions: [] })
+const project = ref({ problems: [] })
 const editing = ref(false)
 const editForm = ref({
   name: '',

@@ -44,7 +44,7 @@ import axios from 'axios'
 import { evaluationCriteria } from '../utils/constants.js'
 
 const props = defineProps({
-  question: Object,
+  problem: Object,
   initialEvaluation: {
     type: Object,
     default: () => ({
@@ -73,7 +73,7 @@ watchEffect(() => {
 })
 
 const submit = async () => {
-  await axios.post(`/api/questions/${props.question.id}/evaluate`, evaluation_data)
+  await axios.post(`/api/problems/${props.problem.id}/evaluate`, evaluation_data)
   emit('submitted')
 }
 </script>
