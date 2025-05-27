@@ -39,7 +39,7 @@ export const evaluationCriteria = [
       key: 'feasibility',
       name: 'Feasibility',
       description: 'Can a well-prepared student answer within 30 minutes given the scope?',
-      score_2: 'Workload fits the stated 30-minute limit and can be answered in a short paragraph or schematic; students have the required knowledge.',
+      score_2: 'Students have the required knowledge. Workload fits the stated 30-minute limit and can be answered in a short paragraph',
       score_1: 'Slightly over/under the intended scope; may pressure time or require modest outside knowledge.',
       score_0: 'Unrealistic for allotted time or demands resources not provided (e.g., lengthy calculations, external research).',
       weight: 1

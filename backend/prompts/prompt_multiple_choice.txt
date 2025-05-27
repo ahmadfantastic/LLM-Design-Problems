@@ -7,6 +7,7 @@ Format Requirements:
 - The problem should be in a different context from the project.
 - The problem should have four options with only one correct answer
 - Students should be able to answer in 30 minutes.
+- Do not provide any technical terms that could serve as hints to the solution.
 - Ensure to adequately explain concepts in the domain problem that are potentially unfamiliar to students.
 
 Generate a distinct problem that aligns with these requirements based on the following course and project details:

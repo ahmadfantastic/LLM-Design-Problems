@@ -80,11 +80,12 @@
       <div class="d-flex justify-content-between align-items-center mb-3">
         <h2 class="h6 mb-0">Generated Answer</h2>
         <button
-          v-if="!problem.sample_answer && !loadingAnswer"
+          v-if="!loadingAnswer"
           class="btn btn-outline-primary btn-sm"
           @click="generateAnswer"
         >
-          <i class="bi bi-lightbulb me-1"></i>Generate Answer
+          <i class="bi bi-lightbulb me-1"></i>
+          {{ problem.sample_answer ? 'Regenerate Answer' : 'Generate Answer' }}
         </button>
         <div v-if="loadingAnswer" class="spinner-border text-primary spinner-border-sm" role="status">
           <span class="visually-hidden">Loading...</span>

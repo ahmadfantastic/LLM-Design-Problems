@@ -19,14 +19,14 @@ def generate_problem(full_objs: str, task_desc: str, technologies: str, target_o
             "role": "user", 
             "content": prompt
             }],
-        temperature=0,
+        temperature=0.7,
     )
     return prompt, response.choices[0].message.content.strip()
 
 
 def generate_answer(problem: str, type: str):    
     if type == "open":
-        template = """ In 2-4 sentences answer this problem: {problem}"""
+        template = """ In one paragraph answer this problem: {problem}"""
     elif type == "multiple_choice":
         template = """ Briefly, what is the answer to this problem: {problem}"""
     else:
@@ -38,7 +38,7 @@ def generate_answer(problem: str, type: str):
     response = client.chat.completions.create(
         model="gpt-4o",
         messages=[{"role": "user", "content": prompt}],
-        temperature=0,
+        temperature=0.7,
     )
     return response.choices[0].message.content.strip()
 
