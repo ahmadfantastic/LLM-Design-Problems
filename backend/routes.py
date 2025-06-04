@@ -102,7 +102,7 @@ def evaluate_problem(qid):
             if score < 0 or score > 2:
                 return jsonify({"error": f"Invalid score for {k}: {score}"}), 400
             setattr(problem, k, score)
-    problem.evaluation_note = data["evaluation_note"]
+    problem.evaluation_note = data.get("evaluation_note")
     db.session.commit()
     return jsonify(q_to_dict(problem, full=True))
 
