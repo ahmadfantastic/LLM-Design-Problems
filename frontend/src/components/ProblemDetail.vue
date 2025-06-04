@@ -12,6 +12,24 @@
       Generated Design Problem #{{ problem.id }}
     </h1>
 
+    <!-- Navigation between problems -->
+    <div class="d-flex justify-content-between mb-3">
+      <RouterLink
+        v-if="prevId"
+        :to="`/problems/${prevId}`"
+        class="btn btn-outline-secondary btn-sm"
+      >
+        <i class="bi bi-chevron-left me-1"></i>Previous
+      </RouterLink>
+      <RouterLink
+        v-if="nextId"
+        :to="`/problems/${nextId}`"
+        class="btn btn-outline-secondary btn-sm ms-auto"
+      >
+        Next<i class="bi bi-chevron-right ms-1"></i>
+      </RouterLink>
+    </div>
+
     <!-- Generated Problem -->
     <div class="mb-4">
       <div v-html="renderedProblem" class="border rounded p-3 bg-light"></div>
@@ -109,7 +127,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted, computed } from 'vue'
+import { ref, onMounted, computed, watch } from 'vue'
 import axios from 'axios'
 import { useRoute } from 'vue-router'
 import EvaluationForm from './EvaluationForm.vue'
@@ -125,6 +143,8 @@ const renderedAnswer = ref('')
 const editingEvaluation = ref(false)
 const loadingAnswer = ref(false)
 
+const projectProblems = ref([])
+
 
 const isEvaluated = computed(() =>
   evaluationCriteria.every(
@@ -139,12 +159,32 @@ const fetchProblem = async () => {
   renderedProblem.value = md.render(problem.value.generated_problem || '')
   renderedAnswer.value = md.render(problem.value.sample_answer || '')
   editingEvaluation.value = false // exit edit mode when refreshing
+  await fetchProjectProblems()
 }
 
 const handleEvaluationUpdate = () => {
   fetchProblem()
   editingEvaluation.value = false
 }
+
+
+const fetchProjectProblems = async () => {
+  if (!problem.value.project_id) return
+  const { data } = await axios.get(`/api/projects/${problem.value.project_id}`)
+  projectProblems.value = [...data.problems].sort((a, b) => a.id - b.id)
+}
+
+const prevId = computed(() => {
+  const idx = projectProblems.value.findIndex(p => p.id === problem.value.id)
+  return idx > 0 ? projectProblems.value[idx - 1].id : null
+})
+
+const nextId = computed(() => {
+  const idx = projectProblems.value.findIndex(p => p.id === problem.value.id)
+  return idx >= 0 && idx < projectProblems.value.length - 1
+    ? projectProblems.value[idx + 1].id
+    : null
+})
 
 
 const generateAnswer = async () => {
@@ -165,6 +205,6 @@ const typeIcon = {
 
 const answerMap = ['No', 'Maybe', 'Yes']
 
-
 onMounted(fetchProblem)
+watch(() => route.params.id, fetchProblem)
 </script>
