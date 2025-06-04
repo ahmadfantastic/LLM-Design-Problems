@@ -5,9 +5,9 @@ from config import Config
 client = OpenAI(api_key=Config.OPENAI_API_KEY)
 
 def generate_problem(full_objs: str, task_desc: str, technologies: str, target_objs: str, type: str):
-    prompt_tempalate = load_prompt_template(type)
-    
-    prompt = prompt_tempalate.format(
+    prompt_template = load_prompt_template(type)
+
+    prompt = prompt_template.format(
         full_learning_objectives=full_objs,
         task_description=task_desc,
         technologies=technologies,
