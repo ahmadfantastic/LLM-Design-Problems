@@ -1,76 +1,46 @@
 <template>
-  <div v-if="problems.length" class="card shadow-sm p-4 mb-4">
+  <div v-if="stats" class="card shadow-sm p-4 mb-4">
     <h3 class="h6 mb-3">Project Statistics</h3>
-    <canvas ref="chart"></canvas>
+    <ul class="list-group mb-3">
+      <li v-for="c in evaluationCriteria" :key="c.key" class="list-group-item d-flex justify-content-between align-items-center">
+        <span>{{ c.name }}</span>
+        <span>{{ stats.user_avg[c.key] !== null && stats.user_avg[c.key] !== undefined ? stats.user_avg[c.key].toFixed(2) : 'N/A' }}</span>
+      </li>
+    </ul>
+    <div v-if="stats.overall_avg">
+      <h6>Overall Averages</h6>
+      <ul class="list-group mb-3">
+        <li v-for="c in evaluationCriteria" :key="c.key" class="list-group-item d-flex justify-content-between align-items-center">
+          <span>{{ c.name }}</span>
+          <span>{{ stats.overall_avg[c.key] !== null && stats.overall_avg[c.key] !== undefined ? stats.overall_avg[c.key].toFixed(2) : 'N/A' }}</span>
+        </li>
+      </ul>
+      <h6>Interrater Agreement (Kappa)</h6>
+      <ul class="list-group">
+        <li v-for="c in evaluationCriteria" :key="c.key" class="list-group-item d-flex justify-content-between align-items-center">
+          <span>{{ c.name }}</span>
+          <span>{{ stats.kappa[c.key] !== null && stats.kappa[c.key] !== undefined ? stats.kappa[c.key].toFixed(2) : 'N/A' }}</span>
+        </li>
+      </ul>
+    </div>
   </div>
 </template>
 
 <script setup>
-import { onMounted, ref, watch, nextTick } from 'vue'
-import Chart from 'chart.js/auto'
+import { onMounted, ref, watch } from 'vue'
+import axios from 'axios'
 import { evaluationCriteria } from '../utils/constants.js'
 
-const props = defineProps({ problems: Array })
-const chart = ref(null)
+const props = defineProps({ projectId: Number, problems: Array })
+const stats = ref(null)
 
-const render = async () => {
-  if (!props.problems.length) return
-  await nextTick() // wait for <canvas> to exist
-
-  const avgs = evaluationCriteria.map(criteria => {
-    const validVals = props.problems
-      .map(q => q[criteria.key])
-      .filter(v => v !== null && v !== undefined)
-
-    if (!validVals.length) return 0  // no evaluated problems yet for this field
-
-    const total = validVals.reduce((a, b) => a + b, 0)
-    return total / validVals.length
-  })
-
-  new Chart(chart.value, {
-    type: 'bar',
-    data: {
-      labels: evaluationCriteria.map(c => c.name),
-      datasets: [{
-        data: avgs,
-      }]
-    },
-    options: {
-      responsive: true,
-      plugins: {
-        legend: { display: false },
-        title: {
-          display: true,
-          text: 'Average Evaluation Scores',
-          font: { size: 16 }
-        },
-        tooltip: {
-          callbacks: {
-            label: function(context) {
-              const idx = context.dataIndex
-              const criteria = evaluationCriteria[idx]
-              const value = context.dataset.data[idx]
-              return [
-                `${criteria.name}: ${value.toFixed(2)}`,
-                criteria.description  // show the long description!
-              ]
-            }
-          }
-        }
-      },
-      scales: {
-        y: {
-          suggestedMin: 0,
-          suggestedMax: 2 ,
-          ticks: { stepSize: 1 }
-        }
-      }
-    }
-  })
-
+const fetchStats = async () => {
+  if (!props.projectId) return
+  const { data } = await axios.get(`/api/projects/${props.projectId}/stats`)
+  stats.value = data
 }
 
-onMounted(render)
-watch(() => props.problems, render)
+onMounted(fetchStats)
+watch(() => props.problems, fetchStats)
 </script>
+

@@ -78,7 +78,7 @@
       </template>
       
       <!-- Stats panel -->
-      <StatsPanel :problems="project.problems" />
+      <StatsPanel :project-id="project.id" :problems="project.problems" />
     </div>
 
     <div class="col-md-7">
