@@ -18,13 +18,6 @@ class Problem(db.Model):
     prompt = db.Column(db.Text, nullable=False)
     generated_problem = db.Column(db.Text, nullable=False)
     sample_answer = db.Column(db.Text)
-    # legacy columns kept for backwards compatibility but no longer used
-    scenario = db.Column(db.Integer)
-    alignment = db.Column(db.Integer)
-    complexity = db.Column(db.Integer)
-    clarity = db.Column(db.Integer)
-    feasibility = db.Column(db.Integer)
-    evaluation_note = db.Column(db.Text)
     created_at = db.Column(db.DateTime, default=lambda: datetime.now(timezone.utc))
     evaluations = db.relationship("Evaluation", backref="problem", cascade="all, delete-orphan")
 
