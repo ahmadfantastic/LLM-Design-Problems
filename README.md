@@ -46,6 +46,10 @@ Use a `.env` file in `backend/` to store configuration variables. A sample templ
 DEBUG=True
 SECRET_KEY=
 DB_NAME=database
+DB_USER=
+DB_PASSWORD=
+DB_HOST=
+DB_PORT=
 
 # OPEN AI
 OPENAI_DEFAULT_MODEL=gpt-4o
