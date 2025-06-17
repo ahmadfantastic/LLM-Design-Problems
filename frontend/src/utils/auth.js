@@ -9,8 +9,9 @@ export async function fetchCurrentUser() {
 }
 
 export async function login(username, password) {
-  await axios.post('/api/login', { username, password })
+  const res = await axios.post('/api/login', { username, password })
   await fetchCurrentUser()
+  return res
 }
 
 export async function logout() {

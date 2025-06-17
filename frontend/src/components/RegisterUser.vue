@@ -7,10 +7,6 @@
           <label class="form-label">Username</label>
           <input v-model="username" class="form-control" required />
         </div>
-        <div class="mb-3">
-          <label class="form-label">Password</label>
-          <input v-model="password" type="password" class="form-control" required />
-        </div>
         <div class="form-check mb-3">
           <input class="form-check-input" type="checkbox" id="admin" v-model="isAdmin" />
           <label class="form-check-label" for="admin">Admin</label>
@@ -28,11 +24,10 @@ import { useRouter } from 'vue-router'
 
 const router = useRouter()
 const username = ref('')
-const password = ref('')
 const isAdmin = ref(false)
 
 const submit = async () => {
-  await axios.post('/api/register', { username: username.value, password: password.value, is_admin: isAdmin.value })
+  await axios.post('/api/register', { username: username.value, is_admin: isAdmin.value })
   router.push('/')
 }
 </script>
