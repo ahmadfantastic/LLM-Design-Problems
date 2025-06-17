@@ -7,7 +7,7 @@
           <label class="form-label">Username</label>
           <input v-model="username" class="form-control" required />
         </div>
-        <div class="mb-3">
+        <div class="mb-3" v-if="showPassword">
           <label class="form-label">Password</label>
           <input v-model="password" type="password" class="form-control" required />
         </div>
@@ -25,13 +25,18 @@ import { login } from '../utils/auth.js'
 const router = useRouter()
 const username = ref('')
 const password = ref('')
+const showPassword = ref(false)
 
 const submit = async () => {
   try {
-    await login(username.value, password.value)
+    await login(username.value, showPassword.value ? password.value : undefined)
     router.push('/')
   } catch (e) {
-    alert('Login failed')
+    if (e.response && e.response.data && e.response.data.set_password_required) {
+      showPassword.value = true
+    } else {
+      alert('Login failed')
+    }
   }
 }
 </script>

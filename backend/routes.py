@@ -40,8 +40,20 @@ def admin_required(f):
 def login():
     data = request.json or {}
     user = User.query.filter_by(username=data.get("username")).first()
-    if not user or not check_password_hash(user.password_hash, data.get("password", "")):
+    if not user:
         abort(401)
+
+    password = data.get("password")
+    # If the user has no password set yet, require them to set one
+    if user.password_hash is None:
+        if not password:
+            return jsonify({"set_password_required": True}), 400
+        user.password_hash = generate_password_hash(password)
+        db.session.commit()
+
+    if not check_password_hash(user.password_hash, password or ""):
+        abort(401)
+
     session["user_id"] = user.id
     return jsonify({"username": user.username, "is_admin": user.is_admin})
 
@@ -64,16 +76,27 @@ def get_current_user_route():
 @admin_required
 def register_user():
     data = request.json or {}
-    if not data.get("username") or not data.get("password"):
+    if not data.get("username"):
         abort(400)
     if User.query.filter_by(username=data["username"]).first():
         return jsonify({"error": "Username already exists"}), 400
-    user = User(username=data["username"],
-                password_hash=generate_password_hash(data["password"]),
-                is_admin=bool(data.get("is_admin")))
+    user = User(
+        username=data["username"],
+        password_hash=None,
+        is_admin=bool(data.get("is_admin")),
+    )
     db.session.add(user)
     db.session.commit()
     return jsonify({"id": user.id, "username": user.username, "is_admin": user.is_admin}), 201
+
+
+@api.route("/users/<int:uid>/reset_password", methods=["POST"])
+@admin_required
+def reset_password(uid):
+    user = User.query.get_or_404(uid)
+    user.password_hash = None
+    db.session.commit()
+    return "", 204
 
 # ---- Projects ----
 @api.route("/projects", methods=["GET"])
@@ -81,6 +104,7 @@ def list_projects():
     return jsonify([p_to_dict(p) for p in Project.query.order_by(Project.created_at.desc())])
 
 @api.route("/projects", methods=["POST"])
+@login_required
 def create_project():
     data = request.json or {}
     p = Project(name=data.get("name"),
@@ -176,6 +200,7 @@ def project_stats(pid):
 
 # ---- Problems ----
 @api.route("/projects/<int:pid>/problems", methods=["POST"])
+@login_required
 def create_problem(pid):
     project = Project.query.get_or_404(pid)
     target_objs: str = request.json.get("target_objectives", "")
@@ -248,6 +273,7 @@ def evaluate_problem(qid):
 
 
 @api.route("/problems/<int:qid>/answer", methods=["POST"])
+@login_required
 def answer_problem(qid):
     problem = Problem.query.get_or_404(qid)
     problem.sample_answer = generate_answer(problem.generated_problem, problem.type)
