@@ -9,6 +9,7 @@ class Config:
     DB_HOST = os.getenv("DB_HOST")
     DB_PORT = os.getenv("DB_PORT")
     DATABASE_URI = os.getenv("DATABASE_URI")
+    SECRET_KEY = os.getenv("SECRET_KEY", "dev-secret-key")
 
     if DATABASE_URI:
         SQLALCHEMY_DATABASE_URI = DATABASE_URI

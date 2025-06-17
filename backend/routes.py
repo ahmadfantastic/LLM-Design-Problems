@@ -132,7 +132,7 @@ def project_stats(pid):
     user_avg = {m: avg_for(user_evals, m) for m in metrics}
 
     overall_avg = None
-    kappa = None
+    alpha = None
     if user.is_admin:
         all_evals = Evaluation.query.join(Problem).filter(Problem.project_id == pid).all()
         overall_avg = {m: avg_for(all_evals, m) for m in metrics}
@@ -142,34 +142,36 @@ def project_stats(pid):
         for ev in all_evals:
             evaluations_by_user.setdefault(ev.user_id, {})[ev.problem_id] = ev
 
-        def cohen_kappa(r1, r2):
-            n = len(r1)
-            if n == 0:
-                return None
-            categories = [0, 1, 2]
-            po = sum(1 for a, b in zip(r1, r2) if a == b) / n
-            p1 = {c: r1.count(c) / n for c in categories}
-            p2 = {c: r2.count(c) / n for c in categories}
-            pe = sum(p1[c] * p2[c] for c in categories)
-            return 1.0 if pe == 1 else (po - pe) / (1 - pe)
+        import krippendorff
+        # Prepare data for Krippendorff's alpha: metrics x problems x users
+        # Ratings: 0 = no, 1 = maybe, 2 = yes (ordinal)
+        alpha = {}
+        for m in metrics:
+            # Build a matrix: rows=users, columns=problems, values=ratings or None
+            user_ids = list(evaluations_by_user.keys())
+            problem_ids = set()
+            for u in user_ids:
+                problem_ids.update(evaluations_by_user[u].keys())
+            problem_ids = sorted(problem_ids)
+            data = []
+            for u in user_ids:
+                row = []
+                for pid_ in problem_ids:
+                    ev = evaluations_by_user[u].get(pid_)
+                    val = getattr(ev, m) if ev and getattr(ev, m) is not None else None
+                    row.append(val)
+                data.append(row)
+            # Transpose to shape: items x raters
+            matrix = list(map(list, zip(*data)))
+            # krippendorff.alpha expects a list of lists: items x raters
+            try:
+                a = krippendorff.alpha(reliability_data=matrix, level_of_measurement='ordinal')
+            except Exception:
+                a = None
+            alpha[m] = a
+        print(data)
 
-        from itertools import combinations
-        kappa_vals = {m: [] for m in metrics}
-        users = list(evaluations_by_user.keys())
-        for u1, u2 in combinations(users, 2):
-            probs = set(evaluations_by_user[u1].keys()) & set(evaluations_by_user[u2].keys())
-            if not probs:
-                continue
-            for m in metrics:
-                r1 = [getattr(evaluations_by_user[u1][pid], m) for pid in probs if getattr(evaluations_by_user[u1][pid], m) is not None and getattr(evaluations_by_user[u2][pid], m) is not None]
-                r2 = [getattr(evaluations_by_user[u2][pid], m) for pid in probs if getattr(evaluations_by_user[u1][pid], m) is not None and getattr(evaluations_by_user[u2][pid], m) is not None]
-                if len(r1):
-                    score = cohen_kappa(r1, r2)
-                    if score is not None:
-                        kappa_vals[m].append(score)
-        kappa = {m: (sum(v)/len(v) if v else None) for m, v in kappa_vals.items()}
-
-    return jsonify({"user_avg": user_avg, "overall_avg": overall_avg, "kappa": kappa})
+    return jsonify({"user_avg": user_avg, "overall_avg": overall_avg, "agreement": alpha})
 
 
 # ---- Problems ----

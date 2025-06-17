@@ -15,11 +15,11 @@
           <span>{{ stats.overall_avg[c.key] !== null && stats.overall_avg[c.key] !== undefined ? stats.overall_avg[c.key].toFixed(2) : 'N/A' }}</span>
         </li>
       </ul>
-      <h6>Interrater Agreement (Kappa)</h6>
+      <h6>Interrater Agreement (Krippendorff's Alpha)</h6>
       <ul class="list-group">
         <li v-for="c in evaluationCriteria" :key="c.key" class="list-group-item d-flex justify-content-between align-items-center">
           <span>{{ c.name }}</span>
-          <span>{{ stats.kappa[c.key] !== null && stats.kappa[c.key] !== undefined ? stats.kappa[c.key].toFixed(2) : 'N/A' }}</span>
+          <span>{{ stats.agreement[c.key] !== null && stats.agreement[c.key] !== undefined ? stats.agreement[c.key].toFixed(2) : 'N/A' }}</span>
         </li>
       </ul>
     </div>
