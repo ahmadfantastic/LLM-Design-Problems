@@ -25,9 +25,12 @@ class Problem(db.Model):
 class User(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(80), unique=True, nullable=False)
-    password_hash = db.Column(db.String(128), nullable=False)
+    # password_hash can be null so new users can set their password on first login
+    password_hash = db.Column(db.String(128), nullable=True)
     is_admin = db.Column(db.Boolean, default=False)
-    evaluations = db.relationship("Evaluation", backref="user", cascade="all, delete-orphan")
+    evaluations = db.relationship(
+        "Evaluation", backref="user", cascade="all, delete-orphan"
+    )
 
 
 class Evaluation(db.Model):
