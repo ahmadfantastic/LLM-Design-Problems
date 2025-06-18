@@ -1,9 +1,11 @@
-from flask import Blueprint, request, jsonify, abort, session
+from flask import Blueprint, request, jsonify, abort, session, make_response
 from functools import wraps
 from werkzeug.security import generate_password_hash, check_password_hash
 from database import db
 from models import Project, Problem, User, Evaluation
 from openai_client import generate_problem, generate_answer
+import csv
+import io
 
 api = Blueprint("api", __name__)
 
@@ -196,6 +198,23 @@ def project_stats(pid):
         print(data)
 
     return jsonify({"user_avg": user_avg, "overall_avg": overall_avg, "agreement": alpha})
+
+
+# Export problems for a project as CSV
+@api.route("/projects/<int:pid>/problems.csv")
+@login_required
+def export_problems_csv(pid):
+    project = Project.query.get_or_404(pid)
+    output = io.StringIO()
+    writer = csv.writer(output)
+    writer.writerow(["order", "problem"])
+    for idx, prob in enumerate(sorted(project.problems, key=lambda p: p.id), start=1):
+        writer.writerow([idx, prob.generated_problem])
+    output.seek(0)
+    response = make_response(output.getvalue())
+    response.headers["Content-Type"] = "text/csv"
+    response.headers["Content-Disposition"] = f"attachment; filename=project_{pid}_problems.csv"
+    return response
 
 
 # ---- Problems ----
