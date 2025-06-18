@@ -3,7 +3,8 @@ from functools import wraps
 from werkzeug.security import generate_password_hash, check_password_hash
 from database import db
 from models import Project, Problem, User, Evaluation
-from openai_client import generate_problem, generate_answer
+from openai_client import generate_problem, generate_answer, evaluate_problem_llm
+import json
 import csv
 import io
 
@@ -288,6 +289,46 @@ def evaluate_problem(qid):
     evaluation.evaluation_note = data.get("evaluation_note")
     db.session.add(evaluation)
     db.session.commit()
+    return jsonify(q_to_dict(problem, user=user, full=True))
+
+
+@api.route("/problems/<int:qid>/auto_evaluate", methods=["POST"])
+@login_required
+def auto_evaluate_problem(qid):
+    """Evaluate a problem using the LLM and store the results for the current user."""
+    problem = Problem.query.get_or_404(qid)
+    project = Project.query.get(problem.project_id)
+    user = current_user()
+
+    prompt, result = evaluate_problem_llm(
+        project.learning_objectives,
+        project.task_description,
+        project.technologies,
+        problem.generated_problem,
+    )
+
+    try:
+        data = json.loads(result)
+    except Exception:
+        return jsonify({"error": "Failed to parse LLM response", "response": result}), 500
+
+    evaluation = Evaluation.query.filter_by(problem_id=qid, user_id=user.id).first()
+    if not evaluation:
+        evaluation = Evaluation(problem_id=qid, user_id=user.id)
+
+    for field in ["scenario", "alignment", "complexity", "clarity", "feasibility"]:
+        value = data.get(field)
+        if value is not None:
+            try:
+                value = int(value)
+            except ValueError:
+                pass
+            setattr(evaluation, field, value)
+
+    evaluation.evaluation_note = data.get("evaluation_note")
+    db.session.add(evaluation)
+    db.session.commit()
+
     return jsonify(q_to_dict(problem, user=user, full=True))
 
 

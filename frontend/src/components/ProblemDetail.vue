@@ -46,19 +46,43 @@
 
     <!-- Evaluation -->
     <div v-if="!isEvaluated" class="card p-3 mb-4">
-      <h2 class="h6 mb-3">Evaluate this design problem</h2>
+      <div class="d-flex justify-content-between align-items-center mb-3">
+        <h2 class="h6 mb-0">Evaluate this design problem</h2>
+        <button
+          v-if="!loadingAutoEval"
+          class="btn btn-outline-secondary btn-sm"
+          @click="autoEvaluate"
+        >
+          <i class="bi bi-robot me-1"></i>Evaluate with LLM
+        </button>
+        <div v-if="loadingAutoEval" class="spinner-border spinner-border-sm text-primary" role="status">
+          <span class="visually-hidden">Loading...</span>
+        </div>
+      </div>
       <EvaluationForm :problem="problem" @submitted="fetchProblem" />
     </div>
 
     <div v-else class="card p-3 mb-4">
       <div class="d-flex justify-content-between align-items-center mb-3">
         <h2 class="h6 mb-0">Evaluation</h2>
-        <button
-          class="btn btn-outline-primary btn-sm"
-          @click="editingEvaluation = true"
-        >
-          <i class="bi bi-pencil-square me-1"></i>Edit Evaluation
-        </button>
+        <div class="d-flex gap-2">
+          <button
+            v-if="!loadingAutoEval"
+            class="btn btn-outline-secondary btn-sm"
+            @click="autoEvaluate"
+          >
+            <i class="bi bi-robot me-1"></i>Evaluate with LLM
+          </button>
+          <div v-if="loadingAutoEval" class="spinner-border spinner-border-sm text-primary" role="status">
+            <span class="visually-hidden">Loading...</span>
+          </div>
+          <button
+            class="btn btn-outline-primary btn-sm"
+            @click="editingEvaluation = true"
+          >
+            <i class="bi bi-pencil-square me-1"></i>Edit Evaluation
+          </button>
+        </div>
       </div>
 
       <div v-if="editingEvaluation">
@@ -142,6 +166,7 @@ const renderedAnswer = ref('')
 
 const editingEvaluation = ref(false)
 const loadingAnswer = ref(false)
+const loadingAutoEval = ref(false)
 
 const projectProblems = ref([])
 
@@ -194,6 +219,16 @@ const generateAnswer = async () => {
     await fetchProblem()
   } finally {
     loadingAnswer.value = false
+  }
+}
+
+const autoEvaluate = async () => {
+  loadingAutoEval.value = true
+  try {
+    await axios.post(`/api/problems/${route.params.id}/auto_evaluate`)
+    await fetchProblem()
+  } finally {
+    loadingAutoEval.value = false
   }
 }
 
