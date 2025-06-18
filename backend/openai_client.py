@@ -24,7 +24,7 @@ def generate_problem(full_objs: str, task_desc: str, technologies: str, target_o
     return prompt, response.choices[0].message.content.strip()
 
 
-def generate_answer(problem: str, type: str):    
+def generate_answer(problem: str, type: str):
     if type == "open":
         template = """ In one paragraph answer this problem: {problem}"""
     elif type == "multiple_choice":
@@ -42,8 +42,27 @@ def generate_answer(problem: str, type: str):
     )
     return response.choices[0].message.content.strip()
 
+
+def evaluate_problem_llm(full_objs: str, task_desc: str, technologies: str, problem: str):
+    """Ask the LLM to evaluate a problem and return the raw JSON string."""
+    prompt_template = load_prompt_template("evaluate")
+
+    prompt = prompt_template.format(
+        full_learning_objectives=full_objs,
+        task_description=task_desc,
+        technologies=technologies,
+        problem=problem,
+    )
+    response = client.chat.completions.create(
+        model="gpt-4o",
+        messages=[{"role": "user", "content": prompt}],
+        temperature=0.7,
+    )
+    return prompt, response.choices[0].message.content.strip()
+
 def load_prompt_template(type: str):
     filename = f"prompt_{type}.txt"
     filepath = os.path.join("prompts", filename)
     with open(filepath, "r", encoding="utf-8") as file:
         return file.read()
+

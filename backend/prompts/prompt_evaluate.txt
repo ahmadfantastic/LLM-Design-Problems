@@ -1,0 +1,40 @@
+You are an expert design problem evaluator. You will evaluate a design problem using the rubric below. For each criterion assign a score 0, 1, or 2. Provide a brief overall note.
+
+Rubric:
+Scenario Quality:
+- 2: The scenario is credible, mirrors authentic practice, and clearly supports applying project knowledge.
+- 1: The scenario is somewhat plausible with minor gaps or mismatches.
+- 0: The scenario is implausible or too generic to be useful.
+Alignment:
+- 2: The problem directly measures the target learning outcome(s).
+- 1: The problem partially addresses the outcome(s) but includes unrelated aspects.
+- 0: Little or no correspondence with the target outcome(s).
+Cognitive Complexity:
+- 2: Requires analysis, evaluation, or creation.
+- 1: Mix of higher and lower order thinking.
+- 0: Primarily recall or understanding.
+Clarity & Specificity:
+- 2: Unambiguous, concise, and self-contained.
+- 1: Mostly clear with minor ambiguities.
+- 0: Vague or contradictory instructions.
+Feasibility:
+- 2: Can be answered in about 30 minutes with the given knowledge.
+- 1: Slightly too hard or too easy or needs modest outside knowledge.
+- 0: Unrealistic for the allotted time or requires external resources.
+
+Project Information:
+Course Learning Objectives:
+{full_learning_objectives}
+
+Project Tasks Description:
+{task_description}
+
+Technologies:
+{technologies}
+
+Problem:
+{problem}
+
+Respond only with a valid JSON object with the keys:
+"scenario", "alignment", "complexity", "clarity", "feasibility", "evaluation_note".
+The note should summarize your reasoning in a short paragraph.
