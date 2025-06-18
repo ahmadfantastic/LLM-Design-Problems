@@ -87,7 +87,12 @@
       <ProblemForm :project="project" @created="fetchProject" />
 
       <!-- Problem list -->
-      <h2 class="h5 mt-4">Design Problems</h2>
+      <div class="d-flex justify-content-between align-items-center mt-4">
+        <h2 class="h5 mb-0">Design Problems</h2>
+        <button class="btn btn-outline-secondary btn-sm" @click="exportCsv">
+          <i class="bi bi-download me-1"></i> Export CSV
+        </button>
+      </div>
       <div v-if="project.problems.length === 0" class="text-muted fst-italic mb-3">
         No design problems generated yet.
       </div>
@@ -132,6 +137,21 @@ const saveEdit = async () => {
   await axios.patch(`/api/projects/${project.value.id}`, editForm.value)
   editing.value = false
   fetchProject()
+}
+
+const exportCsv = async () => {
+  const { data } = await axios.get(
+    `/api/projects/${project.value.id}/problems.csv`,
+    { responseType: 'blob' }
+  )
+  const url = window.URL.createObjectURL(new Blob([data]))
+  const link = document.createElement('a')
+  link.href = url
+  link.setAttribute('download', `project_${project.value.id}_problems.csv`)
+  document.body.appendChild(link)
+  link.click()
+  link.remove()
+  window.URL.revokeObjectURL(url)
 }
 
 onMounted(fetchProject)
