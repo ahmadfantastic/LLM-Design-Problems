@@ -159,46 +159,11 @@ def project_stats(pid):
     user_avg = {m: avg_for(user_evals, m) for m in metrics}
 
     overall_avg = None
-    alpha = None
     if user.is_admin:
         all_evals = Evaluation.query.join(Problem).filter(Problem.project_id == pid).all()
         overall_avg = {m: avg_for(all_evals, m) for m in metrics}
 
-        # build evaluations by user and problem
-        evaluations_by_user = {}
-        for ev in all_evals:
-            evaluations_by_user.setdefault(ev.user_id, {})[ev.problem_id] = ev
-
-        import krippendorff
-        # Prepare data for Krippendorff's alpha: metrics x problems x users
-        # Ratings: 0 = no, 1 = maybe, 2 = yes (ordinal)
-        alpha = {}
-        for m in metrics:
-            # Build a matrix: rows=users, columns=problems, values=ratings or None
-            user_ids = list(evaluations_by_user.keys())
-            problem_ids = set()
-            for u in user_ids:
-                problem_ids.update(evaluations_by_user[u].keys())
-            problem_ids = sorted(problem_ids)
-            data = []
-            for u in user_ids:
-                row = []
-                for pid_ in problem_ids:
-                    ev = evaluations_by_user[u].get(pid_)
-                    val = getattr(ev, m) if ev and getattr(ev, m) is not None else None
-                    row.append(val)
-                data.append(row)
-            # Transpose to shape: items x raters
-            matrix = list(map(list, zip(*data)))
-            # krippendorff.alpha expects a list of lists: items x raters
-            try:
-                a = krippendorff.alpha(reliability_data=matrix, level_of_measurement='ordinal')
-            except Exception:
-                a = None
-            alpha[m] = a
-        print(data)
-
-    return jsonify({"user_avg": user_avg, "overall_avg": overall_avg, "agreement": alpha})
+    return jsonify({"user_avg": user_avg, "overall_avg": overall_avg})
 
 
 # Export problems for a project as CSV
@@ -300,10 +265,11 @@ def auto_evaluate_problem(qid):
     project = Project.query.get(problem.project_id)
     user = current_user()
 
-    prompt, result = evaluate_problem_llm(
+    result = evaluate_problem_llm(
         project.learning_objectives,
         project.task_description,
         project.technologies,
+        problem.target_objectives,
         problem.generated_problem,
     )
 

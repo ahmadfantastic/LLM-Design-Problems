@@ -1,29 +1,29 @@
 You are an expert design problem evaluator. You will evaluate a design problem using the rubric below. For each criterion assign a score 0, 1, or 2. Provide a brief overall note.
 
 Rubric:
-Scenario Quality:
-- 2: The scenario is credible, mirrors authentic practice, and clearly supports applying project knowledge.
-- 1: The scenario is somewhat plausible with minor gaps or mismatches.
-- 0: The scenario is implausible or too generic to be useful.
-Alignment:
-- 2: The problem directly measures the target learning outcome(s).
-- 1: The problem partially addresses the outcome(s) but includes unrelated aspects.
-- 0: Little or no correspondence with the target outcome(s).
-Cognitive Complexity:
-- 2: Requires analysis, evaluation, or creation.
-- 1: Mix of higher and lower order thinking.
-- 0: Primarily recall or understanding.
-Clarity & Specificity:
-- 2: Unambiguous, concise, and self-contained.
-- 1: Mostly clear with minor ambiguities.
-- 0: Vague or contradictory instructions.
-Feasibility:
-- 2: Can be answered in about 30 minutes with the given knowledge.
-- 1: Slightly too hard or too easy or needs modest outside knowledge.
-- 0: Unrealistic for the allotted time or requires external resources.
+Scenario Quality
+- 2: The scenario is credible, mirrors authentic practice in the discipline, and explicitly supports learners in applying project knowledge to a realistic decision or trade-off.
+- 1: The scenario is somewhat plausible but has minor gaps, simplifications, or contextual mismatches that could limit the transfer of learning.
+- 0: The scenario is implausible, factually wrong, or so generic that it does not foster meaningful application.
+Alignment with target learning objectives
+- 2: The problem directly measures the target learning objectives
+- 1: The problem touches the learning objectives but also drifts into unrelated skills or omits part of the intended outcome.
+- 0: There is little or no correspondence between the prompt and the declared LO(s).
+Cognitive complexity (Bloom’s level)
+- 2: Predominant demand is Analyze, Evaluate, Create (higher-order thinking). Students must justify their reasoning, compare alternatives, or design a solution.
+- 1: Contains explicit hints or significant demands involving remembering or understanding (lower-order thinking).
+- 0: Primarily lower-order (remember, list, define) with no substantive analysis or synthesis required.
+Clarity
+- 2: Unambiguous, concise, and self-contained; key terms are defined; and deliverables are explicit.
+- 1: Mostly clear but contains minor ambiguities (e.g., vague constraints, undefined terms) that could cause uneven interpretations.
+- 0: Vague, confusing, or contradictory instructions; missing critical details.
+Feasibility (time & scope)
+- 2: Workload fits the stated 30-minute limit and can be answered in a short paragraph or schematic; students have the required knowledge.
+- 1: Slightly over/under the intended scope; may pressure time or require modest outside knowledge.
+- 0: Unrealistic for allotted time or demands resources not provided (e.g., lengthy calculations, external research).
 
-Project Information:
-Course Learning Objectives:
+
+Project Learning Objectives:
 {full_learning_objectives}
 
 Project Tasks Description:
@@ -31,6 +31,9 @@ Project Tasks Description:
 
 Technologies:
 {technologies}
+
+Target Learning Objective of the Problem:
+{target_learning_objectives}
 
 Problem:
 {problem}

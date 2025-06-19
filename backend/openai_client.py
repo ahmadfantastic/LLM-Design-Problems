@@ -38,12 +38,12 @@ def generate_answer(problem: str, type: str):
     response = client.chat.completions.create(
         model="gpt-4o",
         messages=[{"role": "user", "content": prompt}],
-        temperature=0.7,
+        temperature=0,
     )
     return response.choices[0].message.content.strip()
 
 
-def evaluate_problem_llm(full_objs: str, task_desc: str, technologies: str, problem: str):
+def evaluate_problem_llm(full_objs: str, task_desc: str, technologies: str, target_objs: str, problem: str):
     """Ask the LLM to evaluate a problem and return the raw JSON string."""
     prompt_template = load_prompt_template("evaluate")
 
@@ -51,14 +51,16 @@ def evaluate_problem_llm(full_objs: str, task_desc: str, technologies: str, prob
         full_learning_objectives=full_objs,
         task_description=task_desc,
         technologies=technologies,
+        target_learning_objectives=target_objs,
         problem=problem,
     )
     response = client.chat.completions.create(
         model="gpt-4o",
         messages=[{"role": "user", "content": prompt}],
-        temperature=0.7,
+        temperature=0,
+        response_format={"type": "json_object"},
     )
-    return prompt, response.choices[0].message.content.strip()
+    return response.choices[0].message.content.strip()
 
 def load_prompt_template(type: str):
     filename = f"prompt_{type}.txt"

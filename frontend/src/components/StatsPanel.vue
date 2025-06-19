@@ -1,6 +1,6 @@
 <template>
   <div v-if="stats" class="card shadow-sm p-4 mb-4">
-    <h3 class="h6 mb-3">Project Statistics</h3>
+    <h3 class="h6 mb-3">My Evaluation</h3>
     <ul class="list-group mb-3">
       <li v-for="c in evaluationCriteria" :key="c.key" class="list-group-item d-flex justify-content-between align-items-center">
         <span>{{ c.name }}</span>
@@ -8,18 +8,11 @@
       </li>
     </ul>
     <div v-if="stats.overall_avg">
-      <h6>Overall Averages</h6>
+      <h6>Overall Evaluation</h6>
       <ul class="list-group mb-3">
         <li v-for="c in evaluationCriteria" :key="c.key" class="list-group-item d-flex justify-content-between align-items-center">
           <span>{{ c.name }}</span>
           <span>{{ stats.overall_avg[c.key] !== null && stats.overall_avg[c.key] !== undefined ? stats.overall_avg[c.key].toFixed(2) : 'N/A' }}</span>
-        </li>
-      </ul>
-      <h6>Interrater Agreement (Krippendorff's Alpha)</h6>
-      <ul class="list-group">
-        <li v-for="c in evaluationCriteria" :key="c.key" class="list-group-item d-flex justify-content-between align-items-center">
-          <span>{{ c.name }}</span>
-          <span>{{ stats.agreement[c.key] !== null && stats.agreement[c.key] !== undefined ? stats.agreement[c.key].toFixed(2) : 'N/A' }}</span>
         </li>
       </ul>
     </div>
