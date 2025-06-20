@@ -10,7 +10,11 @@
     <h1 class="h4 my-3">
       <i :class="typeIcon[problem.type] || 'bi bi-question-circle'"></i>
       Generated Design Problem #{{ problem.id }}
-      <span class="badge bg-info text-dark ms-2">{{ problem.model }}</span>
+      <span
+        class="badge ms-2"
+        :class="modelBadgeClass(problem.model)">
+        {{ problem.model }}
+      </span>
     </h1>
 
     <!-- Navigation between problems -->
@@ -239,8 +243,27 @@ const typeIcon = {
   true_false: 'bi bi-check2-square',
 }
 
+const modelBadgeClass = (model) => {
+  if (!model) return 'bg-info text-dark'
+  const m = model.toLowerCase()
+  if (m.includes('gemini')) return 'gemini-badge'
+  if (m.includes('gpt') || m.startsWith('o1') || m.startsWith('o3')) return 'openai-badge'
+  return 'bg-info text-dark'
+}
+
 const answerMap = ['No', 'Maybe', 'Yes']
 
 onMounted(fetchProblem)
 watch(() => route.params.id, fetchProblem)
 </script>
+
+<style scoped>
+.openai-badge {
+  background-color: #10a37f;
+  color: white;
+}
+.gemini-badge {
+  background-color: #4285F4;
+  color: white;
+}
+</style>

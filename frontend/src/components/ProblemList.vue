@@ -1,7 +1,7 @@
 <template>
   <ul class="list-group mb-4">
     <li
-      v-for="q in problems"
+      v-for="(q, idx) in problems"
       :key="q.id"
       class="list-group-item"
     >
@@ -11,7 +11,7 @@
           <RouterLink
             :to="`/problems/${q.id}`"
             class="text-decoration-none me-2">
-            Design Problem #{{ q.id }}
+            Design Problem #{{ idx + 1 }}
           </RouterLink>
 
           <span
@@ -19,7 +19,11 @@
             :class="isEvaluated(q) ? 'bg-success' : 'bg-warning text-dark'">
             {{ isEvaluated(q) ? 'Evaluated' : 'Pending Evaluation' }}
           </span>
-          <span class="badge bg-info text-dark ms-2">{{ q.model }}</span>
+          <span
+            class="badge ms-2"
+            :class="modelBadgeClass(q.model)">
+            {{ q.model }}
+          </span>
         </div>
 
         <div class="d-flex align-items-center gap-2">
@@ -94,4 +98,23 @@ const typeIcon = {
   multiple_choice: 'bi bi-list-ul',
   true_false: 'bi bi-check2-square',
 }
+
+const modelBadgeClass = (model) => {
+  if (!model) return 'bg-info text-dark'
+  const m = model.toLowerCase()
+  if (m.includes('gemini')) return 'gemini-badge'
+  if (m.includes('gpt') || m.startsWith('o1') || m.startsWith('o3')) return 'openai-badge'
+  return 'bg-info text-dark'
+}
 </script>
+
+<style scoped>
+.openai-badge {
+  background-color: #10a37f;
+  color: white;
+}
+.gemini-badge {
+  background-color: #4285F4;
+  color: white;
+}
+</style>
