@@ -30,6 +30,9 @@
       <option disabled value="">Model</option>
       <option value="gpt-4o">GPT-4o</option>
       <option value="gpt-3.5-turbo">gpt-3.5-turbo</option>
+      <option value="o1">o1</option>
+      <option value="o3">o3</option>
+      <option value="o3-mini">o3-mini</option>
     </select>
 
     <button class="btn btn-success" :disabled="loading">
