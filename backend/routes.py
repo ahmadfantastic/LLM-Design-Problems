@@ -3,13 +3,44 @@ from functools import wraps
 from werkzeug.security import generate_password_hash, check_password_hash
 from database import db
 from models import Project, Problem, User, Evaluation
-from openai_client import generate_problem, generate_answer, evaluate_problem_llm
+from openai_client import (
+    generate_problem as openai_generate_problem,
+    generate_answer as openai_generate_answer,
+    evaluate_problem_llm as openai_evaluate_problem_llm,
+)
+from gemini_client import (
+    generate_problem as gemini_generate_problem,
+    generate_answer as gemini_generate_answer,
+    evaluate_problem_llm as gemini_evaluate_problem_llm,
+)
 from config import Config
 import json
 import csv
 import io
 
 api = Blueprint("api", __name__)
+
+
+def is_openai_model(model: str) -> bool:
+    return model.startswith("gpt") or model.startswith("o")
+
+
+def generate_problem(full_objs, task_desc, technologies, target_objs, type, model):
+    if is_openai_model(model):
+        return openai_generate_problem(full_objs, task_desc, technologies, target_objs, type, model)
+    return gemini_generate_problem(full_objs, task_desc, technologies, target_objs, type, model)
+
+
+def generate_answer(problem, type, model):
+    if is_openai_model(model):
+        return openai_generate_answer(problem, type, model)
+    return gemini_generate_answer(problem, type, model)
+
+
+def evaluate_problem_llm(full_objs, task_desc, technologies, target_objs, problem, model=None):
+    if is_openai_model(model or Config.OPENAI_DEFAULT_MODEL):
+        return openai_evaluate_problem_llm(full_objs, task_desc, technologies, target_objs, problem, model)
+    return gemini_evaluate_problem_llm(full_objs, task_desc, technologies, target_objs, problem, model)
 
 
 def current_user():
@@ -301,6 +332,7 @@ def auto_evaluate_problem(qid):
         project.technologies,
         problem.target_objectives,
         problem.generated_problem,
+        model=problem.model,
     )
 
     try:
@@ -329,7 +361,11 @@ def auto_evaluate_problem(qid):
 @login_required
 def answer_problem(qid):
     problem = Problem.query.get_or_404(qid)
-    problem.sample_answer = generate_answer(problem.generated_problem, problem.type)
+    problem.sample_answer = generate_answer(
+        problem.generated_problem,
+        problem.type,
+        problem.model,
+    )
     db.session.commit()
     return jsonify(q_to_dict(problem, full=True))
 
