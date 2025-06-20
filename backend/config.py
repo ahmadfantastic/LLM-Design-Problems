@@ -23,4 +23,5 @@ class Config:
     SQLALCHEMY_TRACK_MODIFICATIONS = False
     OPENAI_DEFAULT_MODEL = os.getenv("OPENAI_DEFAULT_MODEL", "gpt-4o")
     OPENAI_API_KEY = os.getenv("OPENAI_API_KEY", "")
-    # Switch to another LLM provider by overriding *_API_KEY and in openai_client.py
+    GEMINI_DEFAULT_MODEL = os.getenv("GEMINI_DEFAULT_MODEL", "gemini-1.5-flash")
+    GEMINI_API_KEY = os.getenv("GEMINI_API_KEY", "")

@@ -33,6 +33,8 @@
       <option value="o1">o1</option>
       <option value="o3">o3</option>
       <option value="o3-mini">o3-mini</option>
+      <option value="gemini-flash">Gemini Flash</option>
+      <option value="gemini-pro">Gemini Pro</option>
     </select>
 
     <button class="btn btn-success" :disabled="loading">
