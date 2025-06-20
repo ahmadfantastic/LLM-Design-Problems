@@ -4,7 +4,7 @@ from config import Config
 
 client = OpenAI(api_key=Config.OPENAI_API_KEY)
 
-def generate_problem(full_objs: str, task_desc: str, technologies: str, target_objs: str, type: str):
+def generate_problem(full_objs: str, task_desc: str, technologies: str, target_objs: str, type: str, model: str | None = None):
     prompt_template = load_prompt_template(type)
 
     prompt = prompt_template.format(
@@ -14,7 +14,7 @@ def generate_problem(full_objs: str, task_desc: str, technologies: str, target_o
         target_objectives=target_objs,
     )
     response = client.chat.completions.create(
-        model="gpt-4o",
+        model=model or Config.OPENAI_DEFAULT_MODEL,
         messages=[{
             "role": "user", 
             "content": prompt
@@ -24,7 +24,7 @@ def generate_problem(full_objs: str, task_desc: str, technologies: str, target_o
     return prompt, response.choices[0].message.content.strip()
 
 
-def generate_answer(problem: str, type: str):
+def generate_answer(problem: str, type: str, model: str | None = None):
     if type == "open":
         template = """ In one paragraph answer this problem: {problem}"""
     elif type == "multiple_choice":
@@ -36,14 +36,14 @@ def generate_answer(problem: str, type: str):
         problem=problem,
     )
     response = client.chat.completions.create(
-        model="gpt-4o",
+        model=model or Config.OPENAI_DEFAULT_MODEL,
         messages=[{"role": "user", "content": prompt}],
         temperature=0,
     )
     return response.choices[0].message.content.strip()
 
 
-def evaluate_problem_llm(full_objs: str, task_desc: str, technologies: str, target_objs: str, problem: str):
+def evaluate_problem_llm(full_objs: str, task_desc: str, technologies: str, target_objs: str, problem: str, model: str | None = None):
     """Ask the LLM to evaluate a problem and return the raw JSON string."""
     prompt_template = load_prompt_template("evaluate")
 
@@ -55,7 +55,7 @@ def evaluate_problem_llm(full_objs: str, task_desc: str, technologies: str, targ
         problem=problem,
     )
     response = client.chat.completions.create(
-        model="gpt-4o",
+        model=model or Config.OPENAI_DEFAULT_MODEL,
         messages=[{"role": "user", "content": prompt}],
         temperature=0,
         response_format={"type": "json_object"},

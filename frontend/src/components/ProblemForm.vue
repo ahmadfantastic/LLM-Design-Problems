@@ -26,6 +26,12 @@
         required/>
     </div>
 
+    <select v-model="model" class="form-select" required style="width: 120px">
+      <option disabled value="">Model</option>
+      <option value="gpt-4o">GPT-4o</option>
+      <option value="gpt-3.5-turbo">gpt-3.5-turbo</option>
+    </select>
+
     <button class="btn btn-success" :disabled="loading">
       <span v-if="loading" class="spinner-border spinner-border-sm me-1" role="status" aria-hidden="true"></span>
       <i v-else class="bi bi-lightning-charge-fill me-1"></i>
@@ -43,6 +49,7 @@ const emit = defineEmits(['created'])
 const target = ref('')
 const type = ref('open')
 const count = ref(1)
+const model = ref('gpt-4o')
 
 const loading = ref(false)
 
@@ -54,7 +61,8 @@ const submit = async () => {
       { 
         target_objectives: target.value,
         type: type.value,
-        count: count.value
+        count: count.value,
+        model: model.value
       }
     )
     emit('created')

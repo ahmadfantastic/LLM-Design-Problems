@@ -4,6 +4,7 @@ from werkzeug.security import generate_password_hash, check_password_hash
 from database import db
 from models import Project, Problem, User, Evaluation
 from openai_client import generate_problem, generate_answer, evaluate_problem_llm
+from config import Config
 import json
 import csv
 import io
@@ -212,6 +213,7 @@ def create_problem(pid):
     target_objs: str = request.json.get("target_objectives", "")
     type: str = request.json.get("type", "open")
     count: int = request.json.get("count")
+    model: str = request.json.get("model", Config.OPENAI_DEFAULT_MODEL)
 
     VALID_TYPES = {"open", "multiple_choice"}
     if type not in VALID_TYPES:
@@ -227,15 +229,22 @@ def create_problem(pid):
         return jsonify({"error": f"Invalid count: '{count}' (must be between 1 and 10)"}), 400
 
     for i in range(count):
-        prompt, q_text = generate_problem(project.learning_objectives,
-                                        project.task_description,
-                                        project.technologies,
-                                        target_objs, type)
-        q = Problem(project_id=pid,
-                    type=type,
-                    target_objectives=target_objs,
-                    prompt=prompt,
-                    generated_problem=q_text)
+        prompt, q_text = generate_problem(
+            project.learning_objectives,
+            project.task_description,
+            project.technologies,
+            target_objs,
+            type,
+            model,
+        )
+        q = Problem(
+            project_id=pid,
+            type=type,
+            target_objectives=target_objs,
+            model=model,
+            prompt=prompt,
+            generated_problem=q_text,
+        )
         db.session.add(q)
         db.session.commit()
     return jsonify(q_to_dict(q, full=True)), 201
@@ -346,6 +355,7 @@ def q_to_dict(q: Problem, user=None, full=False):
         "id": q.id,
         "project_id": q.project_id,
         "type": q.type,
+        "model": q.model,
         "target_objectives": q.target_objectives,
         "generated_problem": q.generated_problem,
         "sample_answer": q.sample_answer,
