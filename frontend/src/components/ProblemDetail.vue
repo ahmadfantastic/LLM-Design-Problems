@@ -10,6 +10,7 @@
     <h1 class="h4 my-3">
       <i :class="typeIcon[problem.type] || 'bi bi-question-circle'"></i>
       Generated Design Problem #{{ problem.id }}
+      <span class="badge bg-info text-dark ms-2">{{ problem.model }}</span>
     </h1>
 
     <!-- Navigation between problems -->

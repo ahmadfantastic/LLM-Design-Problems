@@ -19,6 +19,7 @@
             :class="isEvaluated(q) ? 'bg-success' : 'bg-warning text-dark'">
             {{ isEvaluated(q) ? 'Evaluated' : 'Pending Evaluation' }}
           </span>
+          <span class="badge bg-info text-dark ms-2">{{ q.model }}</span>
         </div>
 
         <div class="d-flex align-items-center gap-2">

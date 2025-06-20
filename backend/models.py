@@ -1,5 +1,6 @@
 from datetime import datetime, timezone
 from database import db
+from config import Config
 
 class Project(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -20,6 +21,7 @@ class Problem(db.Model):
     project_id = db.Column(db.Integer, db.ForeignKey("project.id"), nullable=False)
     type = db.Column(db.Text, nullable=False)
     target_objectives = db.Column(db.Text, nullable=False)
+    model = db.Column(db.String(20), nullable=False, default=Config.OPENAI_DEFAULT_MODEL)
     prompt = db.Column(db.Text, nullable=False)
     generated_problem = db.Column(db.Text, nullable=False)
     sample_answer = db.Column(db.Text)
