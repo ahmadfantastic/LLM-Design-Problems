@@ -1,15 +1,24 @@
 You are an expert design problem evaluator. You will evaluate a design problem using the rubric below. For each criterion assign a score 0, 1, or 2. Provide a brief overall note.
 
+Orginal Design Problem Requiremnet:
+- The problem should begin with a short, realistic scenario.
+- The problem should test higher-order thinking skills
+- The problem should be in the scope of the project but in a different scenario.
+- The expected answer length is a few sentences to one paragraph.
+- Students should be able to answer in 30 minutes.
+- Do not provide any technical terms that could serve as hints to the solution.
+- Ensure to adequately explain concepts in the domain problem that are potentially unfamiliar to students.
+
 Rubric:
 Scenario Quality
 - 2: The scenario is credible, mirrors authentic practice in the discipline, and explicitly supports learners in applying project knowledge to a realistic decision or trade-off.
 - 1: The scenario is somewhat plausible but has minor gaps, simplifications, or contextual mismatches that could limit the transfer of learning.
 - 0: The scenario is implausible, factually wrong, or so generic that it does not foster meaningful application.
 Alignment with target learning objectives
-- 2: The problem directly measures the target learning objectives
-- 1: The problem touches the learning objectives but also drifts into unrelated skills or omits part of the intended outcome.
-- 0: There is little or no correspondence between the prompt and the declared LO(s).
-Cognitive complexity (Bloom’s level)
+- 2: The problem directly measures the target learning objective
+- 1: The problem touches the target learning objective but also drifts into unrelated skills or omits part of the intended outcome.
+- 0: There is little or no correspondence between the prompt and the target learning objective.
+Cognitive complexity (Bloom's level)
 - 2: Predominant demand is Analyze, Evaluate, Create (higher-order thinking). Students must justify their reasoning, compare alternatives, or design a solution.
 - 1: Contains explicit hints or significant demands involving remembering or understanding (lower-order thinking).
 - 0: Primarily lower-order (remember, list, define) with no substantive analysis or synthesis required.
@@ -21,7 +30,6 @@ Feasibility (time & scope)
 - 2: Workload fits the stated 30-minute limit and can be answered in a short paragraph or schematic; students have the required knowledge.
 - 1: Slightly over/under the intended scope; may pressure time or require modest outside knowledge.
 - 0: Unrealistic for allotted time or demands resources not provided (e.g., lengthy calculations, external research).
-
 
 Project Learning Objectives:
 {full_learning_objectives}

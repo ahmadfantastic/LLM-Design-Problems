@@ -171,11 +171,32 @@ def project_stats(pid):
 @login_required
 def export_problems_csv(pid):
     project = Project.query.get_or_404(pid)
+    user = current_user()
     output = io.StringIO()
     writer = csv.writer(output)
-    writer.writerow(["order", "problem"])
+    # Add evaluation columns
+    eval_fields = ["scenario", "alignment", "complexity", "clarity", "feasibility"]
+    writer.writerow(["order", "problem"] + eval_fields + ["note"])
+
+    def eval_to_str(val):
+        if val == 2:
+            return "YES"
+        elif val == 1:
+            return "MAYBE"
+        elif val == 0:
+            return "NO"
+        return ""
+
     for idx, prob in enumerate(sorted(project.problems, key=lambda p: p.id), start=1):
-        writer.writerow([idx, prob.generated_problem])
+        row = [idx, prob.generated_problem]
+        ev = Evaluation.query.filter_by(problem_id=prob.id, user_id=user.id).first()
+        if ev:
+            row += [eval_to_str(getattr(ev, f)) for f in eval_fields]
+            row.append(ev.evaluation_note or "")
+        else:
+            row += ["" for _ in eval_fields]
+            row.append("")
+        writer.writerow(row)
     output.seek(0)
     response = make_response(output.getvalue())
     response.headers["Content-Type"] = "text/csv"
@@ -282,16 +303,13 @@ def auto_evaluate_problem(qid):
     if not evaluation:
         evaluation = Evaluation(problem_id=qid, user_id=user.id)
 
-    for field in ["scenario", "alignment", "complexity", "clarity", "feasibility"]:
-        value = data.get(field)
-        if value is not None:
-            try:
-                value = int(value)
-            except ValueError:
-                pass
-            setattr(evaluation, field, value)
-
+    evaluation.scenario = data.get("scenario")
+    evaluation.alignment = data.get("alignment")
+    evaluation.complexity = data.get("complexity")
+    evaluation.clarity = data.get("clarity")
+    evaluation.feasibility = data.get("feasibility")
     evaluation.evaluation_note = data.get("evaluation_note")
+
     db.session.add(evaluation)
     db.session.commit()
 

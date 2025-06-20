@@ -8,7 +8,12 @@ class Project(db.Model):
     task_description = db.Column(db.Text, nullable=False)
     technologies = db.Column(db.Text, nullable=False)
     created_at = db.Column(db.DateTime, default=lambda: datetime.now(timezone.utc))
-    problems = db.relationship("Problem", backref="project", cascade="all, delete-orphan")
+    problems = db.relationship(
+        "Problem",
+        backref="project",
+        cascade="all, delete-orphan",
+        order_by="Problem.id.asc()"
+    )
 
 class Problem(db.Model):
     id = db.Column(db.Integer, primary_key=True)
