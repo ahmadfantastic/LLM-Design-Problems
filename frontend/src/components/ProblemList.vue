@@ -110,7 +110,7 @@ const modelBadgeClass = (model) => {
 
 <style scoped>
 .openai-badge {
-  background-color: #10a37f;
+  background-color: #1b1b1b;
   color: white;
 }
 .gemini-badge {

@@ -9,7 +9,7 @@
 
     <h1 class="h4 my-3">
       <i :class="typeIcon[problem.type] || 'bi bi-question-circle'"></i>
-      Generated Design Problem #{{ problem.id }}
+      Generated Design Problem #{{ problemIndexInProject }}
       <span
         class="badge ms-2"
         :class="modelBadgeClass(problem.model)">
@@ -183,6 +183,11 @@ const isEvaluated = computed(() =>
   )
 )
 
+const problemIndexInProject = computed(() => {
+  const idx = projectProblems.value.findIndex(p => p.id === problem.value.id)
+  return idx >= 0 ? idx + 1 : ''
+})
+
 const fetchProblem = async () => {
   const { data } = await axios.get(`/api/problems/${route.params.id}`)
   problem.value = data
@@ -259,7 +264,7 @@ watch(() => route.params.id, fetchProblem)
 
 <style scoped>
 .openai-badge {
-  background-color: #10a37f;
+  background-color: #1b1b1b;
   color: white;
 }
 .gemini-badge {

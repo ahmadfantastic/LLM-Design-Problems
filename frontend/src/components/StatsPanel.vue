@@ -4,7 +4,7 @@
     <ul class="list-group mb-3">
       <li v-for="c in evaluationCriteria" :key="c.key" class="list-group-item d-flex justify-content-between align-items-center">
         <span>{{ c.name }}</span>
-        <span>{{ stats.user_avg[c.key] !== null && stats.user_avg[c.key] !== undefined ? stats.user_avg[c.key].toFixed(2) : 'N/A' }}</span>
+        <span>{{ stats.user_avg[c.key] !== null && stats.user_avg[c.key] !== undefined ? stats.user_avg[c.key] : 'N/A' }}</span>
       </li>
     </ul>
     <div v-if="stats.overall_avg">
@@ -12,7 +12,7 @@
       <ul class="list-group mb-3">
         <li v-for="c in evaluationCriteria" :key="c.key" class="list-group-item d-flex justify-content-between align-items-center">
           <span>{{ c.name }}</span>
-          <span>{{ stats.overall_avg[c.key] !== null && stats.overall_avg[c.key] !== undefined ? stats.overall_avg[c.key].toFixed(2) : 'N/A' }}</span>
+          <span>{{ stats.overall_avg[c.key] !== null && stats.overall_avg[c.key] !== undefined ? stats.overall_avg[c.key]: 'N/A' }}</span>
         </li>
       </ul>
     </div>

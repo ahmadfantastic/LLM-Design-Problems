@@ -188,12 +188,21 @@ def project_stats(pid):
         vals = [getattr(e, field) for e in evals if getattr(e, field) is not None]
         return sum(vals) / len(vals) if vals else None
 
-    user_avg = {m: avg_for(user_evals, m) for m in metrics}
+    def to_percent(val):
+        if val is None:
+            return None
+        percent = (val / 2) * 100
+        if percent.is_integer():
+            return f"{int(percent)}%"
+        else:
+            return f"{percent:.1f}%"
+
+    user_avg = {m: to_percent(avg_for(user_evals, m)) for m in metrics}
 
     overall_avg = None
     if user.is_admin:
         all_evals = Evaluation.query.join(Problem).filter(Problem.project_id == pid).all()
-        overall_avg = {m: avg_for(all_evals, m) for m in metrics}
+        overall_avg = {m: to_percent(avg_for(all_evals, m)) for m in metrics}
 
     return jsonify({"user_avg": user_avg, "overall_avg": overall_avg})
 
