@@ -1,4 +1,4 @@
-You are an expert design problem evaluator. You will evaluate a design problem using the rubric below. For each criterion assign a score 0, 1, or 2. Provide a brief overall note.
+You are an expert design problem evaluator. You will critically evaluate a design problem using the rubric below. For each criterion assign a score 0, 1, or 2. Provide a brief overall note.
 
 Orginal Design Problem Requiremnet:
 - The problem should begin with a short, realistic scenario.
@@ -43,7 +43,7 @@ Technologies:
 Target Learning Objective of the Problem:
 {target_learning_objectives}
 
-Problem:
+The Design Problem:
 {problem}
 
 Respond only with a valid JSON object with the keys:
