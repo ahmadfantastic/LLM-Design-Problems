@@ -199,6 +199,17 @@ def project_stats(pid):
 
     user_avg = {m: to_percent(avg_for(user_evals, m)) for m in metrics}
 
+    models = [row[0] for row in db.session.query(Problem.model)
+               .filter(Problem.project_id == pid).distinct()]
+    user_model_avg = {}
+    for model in models:
+        m_evals = Evaluation.query.join(Problem).filter(
+            Evaluation.user_id == user.id,
+            Problem.project_id == pid,
+            Problem.model == model
+        ).all()
+        user_model_avg[model] = {m: to_percent(avg_for(m_evals, m)) for m in metrics}
+
     overall_avg = None
     model_avg = None
     if user.is_admin:
@@ -214,7 +225,12 @@ def project_stats(pid):
             ).all()
             model_avg[model] = {m: to_percent(avg_for(m_evals, m)) for m in metrics}
 
-    return jsonify({"user_avg": user_avg, "overall_avg": overall_avg, "model_avg": model_avg})
+    return jsonify({
+        "user_avg": user_avg,
+        "user_model_avg": user_model_avg,
+        "overall_avg": overall_avg,
+        "model_avg": model_avg,
+    })
 
 
 # Export problems for a project as CSV
