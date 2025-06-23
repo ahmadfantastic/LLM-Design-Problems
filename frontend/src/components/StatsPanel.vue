@@ -1,7 +1,27 @@
 <template>
   <div v-if="stats" class="card shadow-sm p-4 mb-4">
     <h3 class="h6 mb-3">My Evaluation</h3>
-    <ul class="list-group mb-3">
+    <div v-if="stats.user_model_avg" class="table-responsive mb-3">
+      <table class="table table-sm">
+        <thead>
+          <tr>
+            <th>Metric</th>
+            <th v-for="m in userModelKeys" :key="m">{{ m }}</th>
+            <th>All Models</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr v-for="c in evaluationCriteria" :key="c.key">
+            <th>{{ c.name }}</th>
+            <td v-for="m in userModelKeys" :key="m">
+              {{ stats.user_model_avg[m][c.key] !== null && stats.user_model_avg[m][c.key] !== undefined ? stats.user_model_avg[m][c.key] : 'N/A' }}
+            </td>
+            <td>{{ stats.user_avg[c.key] !== null && stats.user_avg[c.key] !== undefined ? stats.user_avg[c.key] : 'N/A' }}</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <ul v-else class="list-group mb-3">
       <li v-for="c in evaluationCriteria" :key="c.key" class="list-group-item d-flex justify-content-between align-items-center">
         <span>{{ c.name }}</span>
         <span>{{ stats.user_avg[c.key] !== null && stats.user_avg[c.key] !== undefined ? stats.user_avg[c.key] : 'N/A' }}</span>
@@ -52,6 +72,10 @@ const stats = ref(null)
 
 const modelKeys = computed(() => {
   return stats.value && stats.value.model_avg ? Object.keys(stats.value.model_avg) : []
+})
+
+const userModelKeys = computed(() => {
+  return stats.value && stats.value.user_model_avg ? Object.keys(stats.value.user_model_avg) : []
 })
 
 const fetchStats = async () => {
