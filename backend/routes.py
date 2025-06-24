@@ -17,6 +17,8 @@ from config import Config
 import json
 import csv
 import io
+import pandas as pd
+from sklearn.metrics import cohen_kappa_score
 
 api = Blueprint("api", __name__)
 
@@ -212,6 +214,7 @@ def project_stats(pid):
 
     overall_avg = None
     model_avg = None
+    interrater = None
     if user.is_admin:
         all_evals = Evaluation.query.join(Problem).filter(Problem.project_id == pid).all()
         overall_avg = {m: to_percent(avg_for(all_evals, m)) for m in metrics}
@@ -225,11 +228,49 @@ def project_stats(pid):
             ).all()
             model_avg[model] = {m: to_percent(avg_for(m_evals, m)) for m in metrics}
 
+        user_ids = [row[0] for row in db.session.query(Evaluation.user_id)
+                     .join(Problem)
+                     .filter(Problem.project_id == pid)
+                     .distinct()]
+        if len(user_ids) == 2:
+            uid1, uid2 = user_ids
+            total = len(project.problems)
+            count1 = Evaluation.query.join(Problem).filter(Problem.project_id == pid, Evaluation.user_id == uid1).count()
+            count2 = Evaluation.query.join(Problem).filter(Problem.project_id == pid, Evaluation.user_id == uid2).count()
+            if count1 >= total and count2 >= total:
+                interrater = {}
+                r1_all = []
+                r2_all = []
+                for m in metrics:
+                    r1 = []
+                    r2 = []
+                    complete = True
+                    for prob in sorted(project.problems, key=lambda p: p.id):
+                        e1 = Evaluation.query.filter_by(problem_id=prob.id, user_id=uid1).first()
+                        e2 = Evaluation.query.filter_by(problem_id=prob.id, user_id=uid2).first()
+                        v1 = getattr(e1, m) if e1 else None
+                        v2 = getattr(e2, m) if e2 else None
+                        if v1 is None or v2 is None:
+                            complete = False
+                            break
+                        r1.append(v1)
+                        r2.append(v2)
+                        r1_all.append(v1)
+                        r2_all.append(v2)
+                    if complete:
+                        interrater[m] = cohen_kappa_score(r1, r2, weights="quadratic")
+                    else:
+                        interrater = None
+                        break
+                if interrater is not None:
+                    interrater["overall"] = cohen_kappa_score(r1_all, r2_all, weights="quadratic")
+
     return jsonify({
         "user_avg": user_avg,
         "user_model_avg": user_model_avg,
         "overall_avg": overall_avg,
         "model_avg": model_avg,
+        "interrater": interrater,
     })
 
 
@@ -269,6 +310,68 @@ def export_problems_csv(pid):
     response.headers["Content-Type"] = "text/csv"
     response.headers["Content-Disposition"] = f"attachment; filename=project_{pid}_problems.csv"
     return response
+
+
+# Upload evaluations from CSV or Excel
+@api.route("/projects/<int:pid>/evaluations/upload", methods=["POST"])
+@login_required
+def upload_evaluations(pid):
+    project = Project.query.get_or_404(pid)
+    user = current_user()
+    file = request.files.get("file")
+    if not file:
+        return jsonify({"error": "No file provided"}), 400
+    filename = file.filename or ""
+
+    try:
+        if filename.lower().endswith(".csv"):
+            stream = io.StringIO(file.stream.read().decode("utf-8-sig"))
+            rows = list(csv.DictReader(stream))
+        elif filename.lower().endswith(('.xlsx', '.xls')):
+            df = pd.read_excel(file)
+            rows = df.to_dict(orient="records")
+        else:
+            return jsonify({"error": "Unsupported file type"}), 400
+    except Exception as e:
+        return jsonify({"error": f"Failed to parse file: {e}"}), 400
+
+    problems = sorted(project.problems, key=lambda p: p.id)
+    score_map = {
+        "yes": 2,
+        "maybe": 1,
+        "no": 0,
+        "2": 2,
+        "1": 1,
+        "0": 0,
+        "": None,
+    }
+
+    def parse_score(val):
+        if val is None:
+            return None
+        return score_map.get(str(val).strip().lower(), None)
+
+    for row in rows:
+        try:
+            idx = int(row.get("order")) - 1
+        except Exception:
+            continue
+        if idx < 0 or idx >= len(problems):
+            continue
+        prob = problems[idx]
+        ev = Evaluation.query.filter_by(problem_id=prob.id, user_id=user.id).first()
+        if not ev:
+            ev = Evaluation(problem_id=prob.id, user_id=user.id)
+        for field in ["scenario", "alignment", "complexity", "clarity", "feasibility"]:
+            if field in row:
+                setattr(ev, field, parse_score(row.get(field)))
+        note = row.get("note") or row.get("evaluation_note")
+        if note is not None:
+            ev.evaluation_note = str(note)
+        db.session.add(ev)
+    db.session.commit()
+
+    return jsonify({"status": "ok"})
 
 
 # ---- Problems ----

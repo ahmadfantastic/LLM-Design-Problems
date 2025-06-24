@@ -49,13 +49,26 @@
           </tbody>
         </table>
       </div>
-    </div>
-    <div v-else-if="stats.overall_avg">
+  </div>
+  <div v-else-if="stats.overall_avg">
       <h6>Overall Evaluation</h6>
       <ul class="list-group mb-3">
         <li v-for="c in evaluationCriteria" :key="c.key" class="list-group-item d-flex justify-content-between align-items-center">
           <span>{{ c.name }}</span>
           <span>{{ stats.overall_avg[c.key] !== null && stats.overall_avg[c.key] !== undefined ? stats.overall_avg[c.key]: 'N/A' }}</span>
+        </li>
+      </ul>
+    </div>
+    <div v-if="stats.interrater">
+      <h6>Interrater Agreement (Weighted Kappa)</h6>
+      <ul class="list-group mb-3">
+        <li v-for="c in evaluationCriteria" :key="c.key" class="list-group-item d-flex justify-content-between align-items-center">
+          <span>{{ c.name }}</span>
+          <span>{{ formatKappa(stats.interrater[c.key]) }}</span>
+        </li>
+        <li class="list-group-item d-flex justify-content-between align-items-center">
+          <strong>Overall</strong>
+          <span>{{ formatKappa(stats.interrater.overall) }}</span>
         </li>
       </ul>
     </div>
@@ -82,6 +95,11 @@ const fetchStats = async () => {
   if (!props.projectId) return
   const { data } = await axios.get(`/api/projects/${props.projectId}/stats`)
   stats.value = data
+}
+
+const formatKappa = (val) => {
+  if (val === null || val === undefined) return 'N/A'
+  return val.toFixed(2)
 }
 
 onMounted(fetchStats)

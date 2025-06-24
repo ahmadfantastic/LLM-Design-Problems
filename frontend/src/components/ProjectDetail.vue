@@ -89,9 +89,15 @@
       <!-- Problem list -->
       <div class="d-flex justify-content-between align-items-center mt-4">
         <h2 class="h5 mb-0">Design Problems</h2>
-        <button class="btn btn-outline-secondary btn-sm" @click="exportCsv">
-          <i class="bi bi-download me-1"></i> Export CSV
-        </button>
+        <div class="d-flex gap-2">
+          <input type="file" ref="uploadInput" class="d-none" @change="handleImport" />
+          <button class="btn btn-outline-secondary btn-sm" @click="triggerImport">
+            <i class="bi bi-upload me-1"></i> Import CSV
+          </button>
+          <button class="btn btn-outline-secondary btn-sm" @click="exportCsv">
+            <i class="bi bi-download me-1"></i> Export CSV
+          </button>
+        </div>
       </div>
       <div v-if="project.problems.length === 0" class="text-muted fst-italic mb-3">
         No design problems generated yet.
@@ -152,6 +158,21 @@ const exportCsv = async () => {
   link.click()
   link.remove()
   window.URL.revokeObjectURL(url)
+}
+
+const uploadInput = ref(null)
+
+const triggerImport = () => {
+  uploadInput.value.click()
+}
+
+const handleImport = async (e) => {
+  const file = e.target.files[0]
+  if (!file) return
+  const formData = new FormData()
+  formData.append('file', file)
+  await axios.post(`/api/projects/${project.value.id}/evaluations/upload`, formData)
+  await fetchProject()
 }
 
 onMounted(fetchProject)
