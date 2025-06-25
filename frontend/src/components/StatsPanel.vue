@@ -5,47 +5,18 @@
       <table class="table table-sm">
         <thead>
           <tr>
-            <th rowspan="2">Metric</th>
-            <template v-for="m in userModelKeys" :key="m">
-              <th class="text-center" colspan="4">{{ m }}</th>
-            </template>
-            <th class="text-center" colspan="4">All Models</th>
-          </tr>
-          <tr>
-            <template v-for="m in userModelKeys">
-              <th>Yes</th>
-              <th>Maybe</th>
-              <th>No</th>
-              <th>Score</th>
-            </template>
-            <th>Yes</th>
-            <th>Maybe</th>
-            <th>No</th>
-            <th>Score</th>
+            <th>Metric</th>
+            <th v-for="m in userModelKeys" :key="m">{{ m }}</th>
+            <th>All Models</th>
           </tr>
         </thead>
         <tbody>
           <tr v-for="c in evaluationCriteria" :key="c.key">
             <th>{{ c.name }}</th>
-            <template v-for="m in userModelKeys">
-              <td>{{ percent(stats.user_model_avg[m][c.key], 'yes') }}</td>
-              <td>{{ percent(stats.user_model_avg[m][c.key], 'maybe') }}</td>
-              <td>{{ percent(stats.user_model_avg[m][c.key], 'no') }}</td>
-              <td>{{ formatScore(stats.user_model_avg[m][c.key]) }}</td>
-            </template>
-            <td>{{ percent(stats.user_avg[c.key], 'yes') }}</td>
-            <td>{{ percent(stats.user_avg[c.key], 'maybe') }}</td>
-            <td>{{ percent(stats.user_avg[c.key], 'no') }}</td>
-            <td>{{ formatScore(stats.user_avg[c.key]) }}</td>
-          </tr>
-          <tr>
-            <th>Weighted Score</th>
-            <template v-for="m in userModelKeys">
-              <td colspan="3"></td>
-              <td>{{ formatScore(weightedScore(stats.user_model_avg[m])) }}</td>
-            </template>
-            <td colspan="3"></td>
-            <td>{{ formatScore(weightedScore(stats.user_avg)) }}</td>
+            <td v-for="m in userModelKeys" :key="m">
+              {{ stats.user_model_avg[m][c.key] !== null && stats.user_model_avg[m][c.key] !== undefined ? stats.user_model_avg[m][c.key] : 'N/A' }}
+            </td>
+            <td>{{ stats.user_avg[c.key] !== null && stats.user_avg[c.key] !== undefined ? stats.user_avg[c.key] : 'N/A' }}</td>
           </tr>
         </tbody>
       </table>
@@ -53,11 +24,7 @@
     <ul v-else class="list-group mb-3">
       <li v-for="c in evaluationCriteria" :key="c.key" class="list-group-item d-flex justify-content-between align-items-center">
         <span>{{ c.name }}</span>
-        <span>{{ percent(stats.user_avg[c.key], 'yes') }} / {{ percent(stats.user_avg[c.key], 'maybe') }} / {{ percent(stats.user_avg[c.key], 'no') }} ({{ formatScore(stats.user_avg[c.key]) }})</span>
-      </li>
-      <li class="list-group-item d-flex justify-content-between align-items-center">
-        <strong>Weighted Score</strong>
-        <span>{{ formatScore(weightedScore(stats.user_avg)) }}</span>
+        <span>{{ stats.user_avg[c.key] !== null && stats.user_avg[c.key] !== undefined ? stats.user_avg[c.key] : 'N/A' }}</span>
       </li>
     </ul>
     <div v-if="stats.model_avg">
@@ -66,62 +33,29 @@
         <table class="table table-sm">
           <thead>
             <tr>
-              <th rowspan="2">Metric</th>
-              <template v-for="m in modelKeys" :key="m">
-                <th class="text-center" colspan="4">{{ m }}</th>
-              </template>
-              <th class="text-center" colspan="4">All Models</th>
-            </tr>
-            <tr>
-              <template v-for="m in modelKeys">
-                <th>Yes</th>
-                <th>Maybe</th>
-                <th>No</th>
-                <th>Score</th>
-              </template>
-              <th>Yes</th>
-              <th>Maybe</th>
-              <th>No</th>
-              <th>Score</th>
+              <th>Metric</th>
+              <th v-for="m in modelKeys" :key="m">{{ m }}</th>
+              <th>All Models</th>
             </tr>
           </thead>
           <tbody>
             <tr v-for="c in evaluationCriteria" :key="c.key">
               <th>{{ c.name }}</th>
-              <template v-for="m in modelKeys">
-                <td>{{ percent(stats.model_avg[m][c.key], 'yes') }}</td>
-                <td>{{ percent(stats.model_avg[m][c.key], 'maybe') }}</td>
-                <td>{{ percent(stats.model_avg[m][c.key], 'no') }}</td>
-                <td>{{ formatScore(stats.model_avg[m][c.key]) }}</td>
-              </template>
-              <td>{{ percent(stats.overall_avg[c.key], 'yes') }}</td>
-              <td>{{ percent(stats.overall_avg[c.key], 'maybe') }}</td>
-              <td>{{ percent(stats.overall_avg[c.key], 'no') }}</td>
-              <td>{{ formatScore(stats.overall_avg[c.key]) }}</td>
-            </tr>
-            <tr>
-              <th>Weighted Score</th>
-              <template v-for="m in modelKeys">
-                <td colspan="3"></td>
-                <td>{{ formatScore(weightedScore(stats.model_avg[m])) }}</td>
-              </template>
-              <td colspan="3"></td>
-              <td>{{ formatScore(weightedScore(stats.overall_avg)) }}</td>
+              <td v-for="m in modelKeys" :key="m">
+                {{ stats.model_avg[m][c.key] !== null && stats.model_avg[m][c.key] !== undefined ? stats.model_avg[m][c.key] : 'N/A' }}
+              </td>
+              <td>{{ stats.overall_avg && stats.overall_avg[c.key] !== undefined && stats.overall_avg[c.key] !== null ? stats.overall_avg[c.key] : 'N/A' }}</td>
             </tr>
           </tbody>
         </table>
       </div>
-    </div>
-    <div v-else-if="stats.overall_avg">
+  </div>
+  <div v-else-if="stats.overall_avg">
       <h6>Overall Evaluation</h6>
       <ul class="list-group mb-3">
         <li v-for="c in evaluationCriteria" :key="c.key" class="list-group-item d-flex justify-content-between align-items-center">
           <span>{{ c.name }}</span>
-          <span>{{ percent(stats.overall_avg[c.key], 'yes') }} / {{ percent(stats.overall_avg[c.key], 'maybe') }} / {{ percent(stats.overall_avg[c.key], 'no') }} ({{ formatScore(stats.overall_avg[c.key]) }})</span>
-        </li>
-        <li class="list-group-item d-flex justify-content-between align-items-center">
-          <strong>Weighted Score</strong>
-          <span>{{ formatScore(weightedScore(stats.overall_avg)) }}</span>
+          <span>{{ stats.overall_avg[c.key] !== null && stats.overall_avg[c.key] !== undefined ? stats.overall_avg[c.key]: 'N/A' }}</span>
         </li>
       </ul>
     </div>
@@ -163,31 +97,6 @@ const fetchStats = async () => {
   stats.value = data
 }
 
-const percent = (obj, key) => {
-  if (!obj || obj[key] === null || obj[key] === undefined) return 'N/A'
-  return obj[key]
-}
-
-const formatScore = (obj) => {
-  if (!obj || obj.score === null || obj.score === undefined) return 'N/A'
-  return obj.score.toFixed(2)
-}
-
-const weightedScore = (group) => {
-  if (!group) return null
-  let sum = 0
-  let total = 0
-  evaluationCriteria.forEach(c => {
-    const item = group[c.key]
-    if (item && item.score !== null && item.score !== undefined) {
-      sum += item.score * c.weight
-      total += c.weight
-    }
-  })
-  if (total === 0) return null
-  return sum / total
-}
-
 const formatKappa = (val) => {
   if (val === null || val === undefined) return 'N/A'
   return val.toFixed(2)
@@ -196,3 +105,4 @@ const formatKappa = (val) => {
 onMounted(fetchStats)
 watch(() => props.problems, fetchStats)
 </script>
+
