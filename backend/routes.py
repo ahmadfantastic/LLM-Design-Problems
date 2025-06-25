@@ -258,12 +258,24 @@ def project_stats(pid):
                         r1_all.append(v1)
                         r2_all.append(v2)
                     if complete:
-                        interrater[m] = cohen_kappa_score(r1, r2, weights="quadratic")
+                        if (is_constant(r1) or is_constant(r2)):
+                            if r1 == r2:
+                                interrater[m] = 1.0  # Perfect agreement
+                            else:
+                                interrater[m] = None  # Undefined
+                        else:
+                            interrater[m] = cohen_kappa_score(r1, r2, labels=[0,1,2], weights="quadratic")
                     else:
                         interrater = None
                         break
                 if interrater is not None:
-                    interrater["overall"] = cohen_kappa_score(r1_all, r2_all, weights="quadratic")
+                    if (is_constant(r1_all) or is_constant(r2_all)):
+                        if r1_all == r2_all:
+                            interrater["overall"] = 1.0  # Perfect agreement
+                        else:
+                            interrater["overall"] = None  # Undefined
+                    else:
+                        interrater["overall"] = cohen_kappa_score(r1_all, r2_all, labels=[0,1,2], weights="quadratic")
 
     return jsonify({
         "user_avg": user_avg,
@@ -556,3 +568,6 @@ def q_to_dict(q: Problem, user=None, full=False):
     if full:
         d["prompt"] = q.prompt
     return d
+
+def is_constant(lst):
+    return len(set(lst)) == 1
