@@ -1,5 +1,6 @@
 <template>
   <div class="container py-4">
+    <OverallStatsPanel class="mb-4" />
     <div class="row g-4">
       
       <!-- LEFT COLUMN: Project Form -->
@@ -51,6 +52,7 @@
 import { ref, onMounted } from 'vue'
 import axios from 'axios'
 import ProjectForm from './ProjectForm.vue'
+import OverallStatsPanel from './OverallStatsPanel.vue'
 
 const projects = ref([])
 const fetchProjects = async () => {
