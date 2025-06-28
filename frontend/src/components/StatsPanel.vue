@@ -14,9 +14,16 @@
           <tr v-for="c in evaluationCriteria" :key="c.key">
             <th>{{ c.name }}</th>
             <td v-for="m in userModelKeys" :key="m">
-              {{ stats.user_model_avg[m][c.key] !== null && stats.user_model_avg[m][c.key] !== undefined ? stats.user_model_avg[m][c.key] : 'N/A' }}
+              {{ formatScore(stats.user_model_avg[m][c.key]) }}
             </td>
-            <td>{{ stats.user_avg[c.key] !== null && stats.user_avg[c.key] !== undefined ? stats.user_avg[c.key] : 'N/A' }}</td>
+            <td>{{ formatScore(stats.user_avg[c.key]) }}</td>
+          </tr>
+          <tr>
+            <th>Weighted Score</th>
+            <td v-for="m in userModelKeys" :key="m">
+              {{ formatScore(weightedScore(stats.user_model_avg[m])) }}
+            </td>
+            <td>{{ formatScore(weightedScore(stats.user_avg)) }}</td>
           </tr>
         </tbody>
       </table>
@@ -24,7 +31,11 @@
     <ul v-else class="list-group mb-3">
       <li v-for="c in evaluationCriteria" :key="c.key" class="list-group-item d-flex justify-content-between align-items-center">
         <span>{{ c.name }}</span>
-        <span>{{ stats.user_avg[c.key] !== null && stats.user_avg[c.key] !== undefined ? stats.user_avg[c.key] : 'N/A' }}</span>
+        <span>{{ formatScore(stats.user_avg[c.key]) }}</span>
+      </li>
+      <li class="list-group-item d-flex justify-content-between align-items-center">
+        <strong>Weighted Score</strong>
+        <span>{{ formatScore(weightedScore(stats.user_avg)) }}</span>
       </li>
     </ul>
     <div v-if="stats.model_avg">
@@ -42,9 +53,16 @@
             <tr v-for="c in evaluationCriteria" :key="c.key">
               <th>{{ c.name }}</th>
               <td v-for="m in modelKeys" :key="m">
-                {{ stats.model_avg[m][c.key] !== null && stats.model_avg[m][c.key] !== undefined ? stats.model_avg[m][c.key] : 'N/A' }}
+                {{ formatScore(stats.model_avg[m][c.key]) }}
               </td>
-              <td>{{ stats.overall_avg && stats.overall_avg[c.key] !== undefined && stats.overall_avg[c.key] !== null ? stats.overall_avg[c.key] : 'N/A' }}</td>
+              <td>{{ formatScore(stats.overall_avg && stats.overall_avg[c.key]) }}</td>
+            </tr>
+            <tr>
+              <th>Weighted Score</th>
+              <td v-for="m in modelKeys" :key="m">
+                {{ formatScore(weightedScore(stats.model_avg[m])) }}
+              </td>
+              <td>{{ formatScore(weightedScore(stats.overall_avg)) }}</td>
             </tr>
           </tbody>
         </table>
@@ -55,7 +73,11 @@
       <ul class="list-group mb-3">
         <li v-for="c in evaluationCriteria" :key="c.key" class="list-group-item d-flex justify-content-between align-items-center">
           <span>{{ c.name }}</span>
-          <span>{{ stats.overall_avg[c.key] !== null && stats.overall_avg[c.key] !== undefined ? stats.overall_avg[c.key]: 'N/A' }}</span>
+          <span>{{ formatScore(stats.overall_avg[c.key]) }}</span>
+        </li>
+        <li class="list-group-item d-flex justify-content-between align-items-center">
+          <strong>Weighted Score</strong>
+          <span>{{ formatScore(weightedScore(stats.overall_avg)) }}</span>
         </li>
       </ul>
     </div>
@@ -100,6 +122,25 @@ const fetchStats = async () => {
 const formatKappa = (val) => {
   if (val === null || val === undefined) return 'N/A'
   return val.toFixed(2)
+}
+
+const formatScore = (val) => {
+  if (val === null || val === undefined) return 'N/A'
+  return val.toFixed(2)
+}
+
+const weightedScore = (obj) => {
+  if (!obj) return null
+  let sum = 0
+  let total = 0
+  for (const c of evaluationCriteria) {
+    const v = obj[c.key]
+    if (v !== null && v !== undefined) {
+      sum += v * c.weight
+      total += c.weight
+    }
+  }
+  return total > 0 ? sum / total : null
 }
 
 onMounted(fetchStats)

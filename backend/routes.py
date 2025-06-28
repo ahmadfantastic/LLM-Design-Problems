@@ -190,16 +190,12 @@ def project_stats(pid):
         vals = [getattr(e, field) for e in evals if getattr(e, field) is not None]
         return sum(vals) / len(vals) if vals else None
 
-    def to_percent(val):
+    def to_score(val):
         if val is None:
             return None
-        percent = (val / 2) * 100
-        if percent.is_integer():
-            return f"{int(percent)}%"
-        else:
-            return f"{percent:.1f}%"
+        return round(val / 2, 2)
 
-    user_avg = {m: to_percent(avg_for(user_evals, m)) for m in metrics}
+    user_avg = {m: to_score(avg_for(user_evals, m)) for m in metrics}
 
     models = [row[0] for row in db.session.query(Problem.model)
                .filter(Problem.project_id == pid).distinct()]
@@ -210,14 +206,14 @@ def project_stats(pid):
             Problem.project_id == pid,
             Problem.model == model
         ).all()
-        user_model_avg[model] = {m: to_percent(avg_for(m_evals, m)) for m in metrics}
+        user_model_avg[model] = {m: to_score(avg_for(m_evals, m)) for m in metrics}
 
     overall_avg = None
     model_avg = None
     interrater = None
     if user.is_admin:
         all_evals = Evaluation.query.join(Problem).filter(Problem.project_id == pid).all()
-        overall_avg = {m: to_percent(avg_for(all_evals, m)) for m in metrics}
+        overall_avg = {m: to_score(avg_for(all_evals, m)) for m in metrics}
 
         models = [row[0] for row in db.session.query(Problem.model).filter(Problem.project_id == pid).distinct()]
         model_avg = {}
@@ -226,7 +222,7 @@ def project_stats(pid):
                 Problem.project_id == pid,
                 Problem.model == model
             ).all()
-            model_avg[model] = {m: to_percent(avg_for(m_evals, m)) for m in metrics}
+            model_avg[model] = {m: to_score(avg_for(m_evals, m)) for m in metrics}
 
         user_ids = [row[0] for row in db.session.query(Evaluation.user_id)
                      .join(Problem)
