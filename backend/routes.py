@@ -282,6 +282,106 @@ def project_stats(pid):
     })
 
 
+@api.route("/stats")
+@login_required
+def overall_stats():
+    user = current_user()
+    metrics = ["scenario", "alignment", "complexity", "clarity", "feasibility"]
+
+    user_evals = Evaluation.query.filter_by(user_id=user.id).all()
+
+    def avg_for(evals, field):
+        vals = [getattr(e, field) for e in evals if getattr(e, field) is not None]
+        return sum(vals) / len(vals) if vals else None
+
+    def to_score(val):
+        if val is None:
+            return None
+        return round(val / 2, 2)
+
+    user_avg = {m: to_score(avg_for(user_evals, m)) for m in metrics}
+
+    models = [row[0] for row in db.session.query(Problem.model).distinct()]
+    user_model_avg = {}
+    for model in models:
+        m_evals = Evaluation.query.join(Problem).filter(
+            Evaluation.user_id == user.id,
+            Problem.model == model,
+        ).all()
+        user_model_avg[model] = {m: to_score(avg_for(m_evals, m)) for m in metrics}
+
+    overall_avg = None
+    model_avg = None
+    interrater = None
+    if user.is_admin:
+        all_evals = Evaluation.query.all()
+        overall_avg = {m: to_score(avg_for(all_evals, m)) for m in metrics}
+
+        model_avg = {}
+        for model in models:
+            m_evals = Evaluation.query.join(Problem).filter(Problem.model == model).all()
+            model_avg[model] = {m: to_score(avg_for(m_evals, m)) for m in metrics}
+
+        user_ids = [row[0] for row in db.session.query(Evaluation.user_id).distinct()]
+        if len(user_ids) == 2:
+            uid1, uid2 = user_ids
+            total = Problem.query.count()
+            count1 = Evaluation.query.filter(Evaluation.user_id == uid1).count()
+            count2 = Evaluation.query.filter(Evaluation.user_id == uid2).count()
+            if count1 >= total and count2 >= total:
+                interrater = {}
+                r1_all = []
+                r2_all = []
+                for m in metrics:
+                    r1 = []
+                    r2 = []
+                    complete = True
+                    for prob in Problem.query.order_by(Problem.id.asc()).all():
+                        e1 = Evaluation.query.filter_by(problem_id=prob.id, user_id=uid1).first()
+                        e2 = Evaluation.query.filter_by(problem_id=prob.id, user_id=uid2).first()
+                        v1 = getattr(e1, m) if e1 else None
+                        v2 = getattr(e2, m) if e2 else None
+                        if v1 is None or v2 is None:
+                            complete = False
+                            break
+                        r1.append(v1)
+                        r2.append(v2)
+                        r1_all.append(v1)
+                        r2_all.append(v2)
+                    if complete:
+                        if (is_constant(r1) or is_constant(r2)):
+                            if r1 == r2:
+                                interrater[m] = 1.0
+                            else:
+                                interrater[m] = None
+                        else:
+                            interrater[m] = cohen_kappa_score(r1, r2, labels=[0, 1, 2], weights="quadratic")
+                    else:
+                        interrater = None
+                        break
+                if interrater is not None:
+                    if (is_constant(r1_all) or is_constant(r2_all)):
+                        if r1_all == r2_all:
+                            interrater["overall"] = 1.0
+                        else:
+                            interrater["overall"] = None
+                    else:
+                        interrater["overall"] = cohen_kappa_score(
+                            r1_all,
+                            r2_all,
+                            labels=[0, 1, 2],
+                            weights="quadratic",
+                        )
+
+    return jsonify({
+        "user_avg": user_avg,
+        "user_model_avg": user_model_avg,
+        "overall_avg": overall_avg,
+        "model_avg": model_avg,
+        "interrater": interrater,
+    })
+
+
 # Export problems for a project as CSV
 @api.route("/projects/<int:pid>/problems.csv")
 @login_required
