@@ -115,3 +115,7 @@ The app will be served at [http://localhost:5173/](http://localhost:5173/) and s
 ---
 
 Happy testing! 🚀
+
+## License
+
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](./LICENSE)
