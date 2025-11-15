@@ -1,6 +1,6 @@
 # Project Setup Guide
 
-A concise walkthrough for installing dependencies and running both the **Flask** backend and the **Vite/React** frontend locally.
+A concise walkthrough for installing dependencies and running both the **Flask** backend and the **Vite/Vue** frontend locally.
 
 ---
 
@@ -29,7 +29,7 @@ A concise walkthrough for installing dependencies and running both the **Flask**
 │   ├── app.py
 │   ├── requirements.txt
 │   └── …
-└── frontend/   # Vite + React client
+└── frontend/   # Vite + Vue client
     ├── src/
     ├── package.json
     └── …
@@ -95,7 +95,7 @@ The API will default to [http://127.0.0.1:5000/](http://127.0.0.1:5000/).
 
 ---
 
-## 3. Frontend Setup (Vite / React)
+## 3. Frontend Setup (Vite / Vue)
 
 Open a **second** terminal tab/window so the backend can keep running.
 
@@ -106,11 +106,16 @@ cd frontend
 # 2 — install JS dependencies
 npm install
 
-# 3 — start Vite's dev server
+# 3 — start Vite's dev server (Vue 3)
 npm run dev
+
+# 4 — optional: create a production build
+npm run build
 ```
 
 The app will be served at [http://localhost:5173/](http://localhost:5173/) and should hot-reload on file changes.
+
+> **Note:** The frontend uses Vue 3 with the official Vite plugin (`@vitejs/plugin-vue`). Ensure `npm install` completes successfully so that Vite is available for the dev and build scripts.
 
 ---
 
