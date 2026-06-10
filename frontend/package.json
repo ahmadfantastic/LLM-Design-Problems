@@ -11,7 +11,7 @@
     "bootstrap": "^5.3.5",
     "bootstrap-icons": "^1.11.3",
     "chart.js": "^4.4.9",
-    "markdown-it": "^14.1.0",
+    "markdown-it": "^14.1.1",
     "vue": "^3.4.15",
     "vue-router": "^4.3.0"
   },
